@@ -9,6 +9,7 @@
   const COURSES = window.COURSES || [];
   const GEN = window.YY_GEN;
   const SHEETS = window.TIP_SHEETS || [];
+  const STUDY = window.YY_STUDY || null;
   const courseById = (id) => COURSES.find((c) => c.id === id);
 
   /* ── 存储 ─────────────────────────────────────────────── */
@@ -331,8 +332,13 @@
       <div class="chapters">${rows}</div>
       <div class="sec-title">辅助工具</div>
       <div class="chapters">
-        <div class="ch-row" data-act="nav" data-h="#/cards">
+        <div class="ch-row" data-act="nav" data-h="#/study">
           <div class="ic">📇</div>
+          <div><div class="tt">每日成语 · 易混词</div><div class="ds">300 条高频成语与易混词，按 SM-2 间隔重复每日推送「该复习的 + 该新学的」</div></div>
+          <div class="meta">${(window.YY_DECK || []).length} 条<br><span class="done">待复习 ${window.YY_SRS ? window.YY_SRS.overview().pendingTotal : 0}</span></div><div class="arr">→</div>
+        </div>
+        <div class="ch-row" data-act="nav" data-h="#/cards">
+          <div class="ic">📋</div>
           <div><div class="tt">技巧速查卡</div><div class="ds">关联词标志词、常错词义辨析、主旨结构模型、细节陷阱清单、排序三步法——考前最后过一遍</div></div>
           <div class="meta"></div><div class="arr">→</div>
         </div>
@@ -453,11 +459,20 @@
   function route() {
     stopQuizTimers();
     const h = location.hash || '#/';
+    // 离开学习页时释放定时器，避免后台空转
+    if (STUDY && h !== '#/study' && h !== '#/study/session') STUDY.dispose();
     if (h === '#/' || h === '#') renderHome();
     else if (h.startsWith('#/c/')) renderChapter(h.slice(4));
     else if (h === '#/exam') renderExamIntro();
     else if (h === '#/cards') renderCards();
     else if (h === '#/wrong') renderWrong();
+    else if (h === '#/study') { if (STUDY) STUDY.render(); else renderHome(); }
+    else if (h === '#/study/session') {
+      // 直接刷新到会话地址：无会话则回到看板
+      if (STUDY && STUDY.hasSession()) { /* 保持当前会话不动 */ }
+      else if (STUDY) { location.replace('#/study'); return; }
+      else renderHome();
+    }
     else renderHome();
     window.scrollTo(0, 0);
   }
@@ -467,6 +482,24 @@
     const t = ev.target.closest('[data-act]');
     if (!t) return;
     const act = t.dataset.act;
+
+    /* ── 每日复习模块 ── */
+    if (act && act.indexOf('study-') === 0) {
+      if (!STUDY) return;
+      if (act === 'study-start') { STUDY.start(t.dataset.extra === '1'); return; }
+      if (act === 'study-preview') { STUDY.preview(t.dataset.g); return; }
+      if (act === 'study-flip') { STUDY.flip(); return; }
+      if (act === 'study-grade') { STUDY.grade(t.dataset.r); return; }
+      if (act === 'study-quota') { STUDY.setQuota(t.dataset.d); return; }
+      if (act === 'study-now') { STUDY.requeueNow(); return; }
+      if (act === 'study-finish') { STUDY.finish(); return; }
+      if (act === 'study-quit') { STUDY.quit(); return; }
+      if (act === 'study-reset') {
+        if (confirm('确定要清空全部 300 条的记忆进度吗？所有复习安排会被重置，此操作不可撤销。')) STUDY.reset();
+        return;
+      }
+      return;
+    }
 
     if (act === 'nav') {
       const h = t.dataset.h;
@@ -526,6 +559,24 @@
   });
 
   document.addEventListener('keydown', (ev) => {
+    /* 每日复习的键盘操作：空格翻面 / 1 忘记 / 2 模糊 / 3 认识 */
+    if (STUDY && STUDY.hasSession()) {
+      const tag = (ev.target && ev.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (ev.key === ' ' || ev.key === 'Enter') {
+        if (!STUDY.isWaiting()) { ev.preventDefault(); STUDY.flip(); }
+        return;
+      }
+      const k = ev.key;
+      if (k === '1' || k === '2' || k === '3') {
+        ev.preventDefault();
+        STUDY.grade(k === '1' ? 'again' : k === '2' ? 'hard' : 'good');
+        return;
+      }
+      if (k.toLowerCase() === 'q') { ev.preventDefault(); STUDY.quit(); return; }
+      return;
+    }
+
     if (!quiz || quiz.finished) return;
     const q = quiz.list[quiz.idx];
     if (!quiz.answered) {
