@@ -1,0 +1,63 @@
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  user-select: none;
+}
+
+/* 按键：48px 最小高度保证触控目标，touch-action 消除双击缩放延迟 */
+.key {
+  min-height: 48px;
+  font-family: var(--font-display), var(--font-serif), serif;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--paper-light);
+  border: 1px solid var(--mist);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--mist);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.05s ease, background 0.15s ease, box-shadow 0.05s ease;
+}
+
+.key:active {
+  transform: translateY(2px);
+  box-shadow: none;
+  background: var(--paper-dark);
+}
+
+/* 功能键（清空 / 退格）：弱化样式 */
+.fnKey {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 1rem;
+  color: var(--ink-soft);
+  background: var(--paper-dark);
+}
+
+/* 确定键：通栏，朱砂色，与主题主按钮一致 */
+.confirmKey {
+  grid-column: 1 / -1;
+  font-family: var(--font-serif), serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em; /* 抵消末字间距，保持视觉居中 */
+  color: #fff;
+  background: linear-gradient(135deg, var(--vermilion), var(--vermilion-deep));
+  border-color: var(--vermilion-deep);
+  box-shadow: 0 2px 0 var(--vermilion-deep);
+}
+
+.confirmKey:active {
+  background: var(--vermilion-deep);
+  box-shadow: none;
+}
+
+.confirmKey:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  box-shadow: 0 2px 0 var(--vermilion-deep);
+}

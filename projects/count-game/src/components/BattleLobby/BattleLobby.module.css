@@ -1,0 +1,275 @@
+.lobby {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.backBtn:hover {
+  opacity: 1;
+  color: var(--vermilion);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 2rem;
+  text-align: center;
+  color: var(--ink);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.3rem;
+}
+
+.desc {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+.errorBar {
+  background: rgba(200, 57, 43, 0.1);
+  border: 1px solid var(--vermilion);
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  color: var(--vermilion);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.tabToggle {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 0.8rem;
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  transition: all 0.3s ease;
+}
+
+.tabBtn:hover {
+  border-color: var(--vermilion);
+}
+
+.tabActive {
+  background: var(--ink);
+  color: var(--paper-light);
+  border-color: var(--ink);
+}
+
+.sectionLabel {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 0.6rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionLabel::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: var(--vermilion);
+  border-radius: 2px;
+}
+
+.nameInput {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  background: var(--paper);
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.nameInput:focus {
+  border-color: var(--vermilion);
+}
+
+.codeInput {
+  font-family: var(--font-display), serif;
+  font-size: 1.8rem;
+  letter-spacing: 0.5em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.opGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+.opBtn {
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  padding: 0.8rem 0.4rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.opSymbol {
+  font-family: var(--font-display), serif;
+  font-size: 1.6rem;
+  display: block;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+
+.opLabel {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.opBtn:hover {
+  border-color: var(--vermilion);
+  transform: translateY(-2px);
+}
+
+.opActive {
+  border-color: var(--vermilion);
+  background: var(--vermilion);
+  color: var(--paper-light);
+}
+
+.diffGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.diffBtn {
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: left;
+}
+
+.diffBtn:hover {
+  border-color: var(--vermilion);
+  transform: translateY(-2px);
+}
+
+.diffActive {
+  border-color: var(--vermilion);
+  background: var(--vermilion);
+  color: var(--paper-light);
+}
+
+.diffTitle {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.diffDesc {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+.countOptions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.countBtn {
+  flex: 1;
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  padding: 0.7rem;
+  cursor: pointer;
+  font-family: var(--font-display), serif;
+  font-size: 1.3rem;
+  color: var(--ink-soft);
+  transition: all 0.3s ease;
+}
+
+.countBtn:hover {
+  border-color: var(--vermilion);
+}
+
+.countActive {
+  background: var(--ink);
+  color: var(--paper-light);
+  border-color: var(--ink);
+}
+
+.actionBtn {
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--ink);
+  color: var(--paper-light);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actionBtn:hover:not(:disabled) {
+  background: var(--vermilion);
+}
+
+.actionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .opGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .diffGrid {
+    grid-template-columns: 1fr;
+  }
+}

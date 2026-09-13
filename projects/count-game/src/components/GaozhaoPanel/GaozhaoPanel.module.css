@@ -1,0 +1,567 @@
+/* ===== 通用 ===== */
+.panel {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.backBtn:hover {
+  opacity: 1;
+  color: var(--vermilion);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 2rem;
+  text-align: center;
+  color: var(--ink);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.3rem;
+}
+
+.desc {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+/* ===== 打卡统计 ===== */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 1.8rem;
+}
+
+.statBox {
+  padding: 1rem 0.5rem;
+  background: var(--paper);
+  border: 1px solid var(--mist);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.statValue {
+  font-family: var(--font-display), serif;
+  font-size: 1.8rem;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.vermilion {
+  color: var(--vermilion);
+}
+
+.jade {
+  color: var(--jade);
+}
+
+.gold {
+  color: var(--gold);
+}
+
+.statLabel {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+}
+
+/* ===== 区块标题 ===== */
+.sectionLabel {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionLabel::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: var(--vermilion);
+  border-radius: 2px;
+}
+
+/* ===== 题库列表 ===== */
+.worksheetList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.worksheetItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  background: var(--paper);
+  border: 1px solid var(--mist);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.worksheetItem:hover {
+  border-color: var(--vermilion);
+}
+
+/* 打卡标签 */
+.checkTag {
+  flex-shrink: 0;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.checked {
+  background: rgba(74, 124, 89, 0.12);
+  color: var(--jade-deep);
+}
+
+.unchecked {
+  background: rgba(184, 134, 11, 0.12);
+  color: var(--gold);
+}
+
+/* 题库详情 */
+.worksheetBody {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.worksheetDate {
+  font-family: var(--font-display), serif;
+  font-size: 1.1rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.worksheetTitle {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.worksheetCount {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.deleteBtn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--mist);
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.deleteBtn:hover {
+  border-color: var(--vermilion);
+  color: var(--vermilion);
+  background: rgba(200, 57, 43, 0.06);
+}
+
+/* 空状态 */
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  opacity: 0.6;
+}
+
+/* ===== 练习视图 ===== */
+.practicePanel {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+/* 进度条 */
+.progressBar {
+  height: 4px;
+  background: var(--mist);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--vermilion), var(--gold));
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* 状态栏 */
+.statusBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--paper-dark);
+  border-radius: 6px;
+  border: 1px solid var(--mist);
+}
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.statusLabel {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+}
+
+.statusValue {
+  font-family: var(--font-display), serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5em;
+  text-align: center;
+}
+
+/* 题目区 */
+.questionArea {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  background: var(--paper-light);
+  border: 1px solid var(--mist);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.questionArea::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  border-top: 2px solid var(--vermilion);
+  border-left: 2px solid var(--vermilion);
+  opacity: 0.4;
+}
+
+.questionArea::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border-bottom: 2px solid var(--vermilion);
+  border-right: 2px solid var(--vermilion);
+  opacity: 0.4;
+}
+
+.questionNumber {
+  font-family: var(--font-latin), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.questionDisplay {
+  font-family: var(--font-display), serif;
+  font-size: clamp(2.5rem, 7vw, 4rem);
+  color: var(--ink);
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.num {
+  display: inline-block;
+  animation: numberPop 0.4s ease-out;
+}
+
+.op {
+  color: var(--vermilion);
+  font-size: 0.85em;
+}
+
+.equals {
+  color: var(--ink-soft);
+  opacity: 0.5;
+}
+
+/* 答案输入 */
+.answerRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.answerInput {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  font-family: var(--font-display), serif;
+  font-size: 1.8rem;
+  text-align: center;
+  border: 2px solid var(--mist);
+  border-radius: 6px;
+  background: var(--paper-light);
+  color: var(--ink);
+  outline: none;
+  transition: all 0.3s ease;
+  -moz-appearance: textfield;
+}
+
+.answerInput::-webkit-outer-spin-button,
+.answerInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.answerInput:focus {
+  border-color: var(--vermilion);
+  box-shadow: 0 0 0 4px rgba(200, 57, 43, 0.1);
+}
+
+.inputCorrect {
+  border-color: var(--jade);
+  background: rgba(74, 124, 89, 0.08);
+  animation: shake 0.4s ease;
+}
+
+.inputWrong {
+  border-color: var(--vermilion);
+  background: rgba(200, 57, 43, 0.08);
+  animation: shake 0.4s ease;
+}
+
+.submitBtn {
+  width: 7.5em;
+  flex-shrink: 0;
+  padding: 0 2rem;
+  background: var(--ink);
+  color: var(--paper-light);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+  white-space: nowrap;
+}
+
+.submitBtn:hover {
+  background: var(--vermilion);
+  transform: translateY(-1px);
+}
+
+/* 反馈 */
+.feedback {
+  text-align: center;
+  min-height: 2rem;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.show {
+  opacity: 1;
+}
+
+.correct {
+  color: var(--jade);
+}
+
+.wrong {
+  color: var(--vermilion);
+}
+
+/* 退出 */
+.quitBtn {
+  display: block;
+  margin: 1.5rem auto 0;
+  background: none;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  opacity: 0.5;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: opacity 0.3s ease;
+}
+
+.quitBtn:hover {
+  opacity: 1;
+}
+
+/* ===== 结果视图 ===== */
+.resultPanel {
+  animation: fadeInUp 0.6s ease-out both;
+  text-align: center;
+}
+
+/* 印章 */
+.seal {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+  border: 3px solid var(--vermilion);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--vermilion);
+  background: rgba(200, 57, 43, 0.05);
+  transform: rotate(-5deg);
+  animation: sealStamp 0.6s ease-out 0.3s both;
+}
+
+/* 标题 */
+.resultTitle {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.1em;
+}
+
+.resultSubtitle {
+  font-family: var(--font-latin), serif;
+  font-size: 1rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.2em;
+  margin-bottom: 2rem;
+}
+
+/* 统计 */
+.resultStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.resultStatBox {
+  padding: 1.2rem 0.5rem;
+  background: var(--paper);
+  border: 1px solid var(--mist);
+  border-radius: 6px;
+}
+
+.resultStatValue {
+  font-family: var(--font-display), serif;
+  font-size: 2.2rem;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.resultStatLabel {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+}
+
+/* 操作按钮 */
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.actionBtn {
+  padding: 0.9rem 2rem;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primary {
+  background: var(--ink);
+  color: var(--paper-light);
+}
+
+.primary:hover {
+  background: var(--vermilion);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .answerRow {
+    flex-direction: column;
+  }
+  .submitBtn {
+    padding: 1rem;
+  }
+  .statusBar {
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+  }
+  .resultStats {
+    grid-template-columns: 1fr;
+  }
+  .worksheetBody {
+    gap: 0.5rem;
+  }
+}

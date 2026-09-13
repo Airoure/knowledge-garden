@@ -1,0 +1,220 @@
+.resultPanel {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+  text-align: center;
+}
+
+/* ===== 胜负印章 ===== */
+.seal {
+  width: 80px;
+  height: 80px;
+  border: 3px solid;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 2.8rem;
+  margin: 0 auto 1rem;
+  transform: rotate(-5deg);
+}
+
+.sealWin {
+  border-color: var(--vermilion);
+  color: var(--vermilion);
+  background: rgba(200, 57, 43, 0.05);
+  box-shadow: 0 4px 20px rgba(200, 57, 43, 0.2);
+}
+
+.sealLose {
+  border-color: var(--ink-soft);
+  color: var(--ink-soft);
+  background: rgba(61, 53, 48, 0.05);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: var(--ink);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.3rem;
+}
+
+.subtitle {
+  font-family: var(--font-latin), serif;
+  font-size: 0.85rem;
+  color: var(--gold);
+  letter-spacing: 0.4em;
+  margin-bottom: 1.8rem;
+}
+
+/* ===== 排名列表 ===== */
+.rankList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.rankItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  text-align: left;
+}
+
+.rankMe {
+  border-color: var(--vermilion);
+  background: rgba(200, 57, 43, 0.03);
+}
+
+.rankBadge {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
+}
+
+.rankInfo {
+  flex: 1;
+}
+
+.rankName {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.meTag {
+  font-size: 0.65rem;
+  color: var(--paper-light);
+  background: var(--vermilion);
+  border-radius: 3px;
+  padding: 0.05rem 0.3rem;
+  letter-spacing: 0.1em;
+}
+
+.rankStats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.rankTime {
+  font-family: var(--font-display), serif;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.crown {
+  font-size: 1.4rem;
+  color: var(--gold);
+}
+
+/* ===== 时间明细 ===== */
+.timeDetail {
+  display: flex;
+  justify-content: space-around;
+  padding: 1rem;
+  background: var(--paper);
+  border: 1px solid var(--mist);
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.detailLabel {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+}
+
+.detailValue {
+  font-family: var(--font-display), serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.penaltyTime {
+  color: var(--vermilion);
+}
+
+.totalTime {
+  color: var(--gold);
+}
+
+/* ===== 按钮 ===== */
+.actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.rematchBtn {
+  flex: 1;
+  padding: 1rem;
+  background: var(--ink);
+  color: var(--paper-light);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.rematchBtn:hover {
+  background: var(--vermilion);
+}
+
+.leaveBtn {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.leaveBtn:hover {
+  border-color: var(--vermilion);
+  color: var(--vermilion);
+}
+
+@media (max-width: 640px) {
+  .rankStats {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .timeDetail {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+}

@@ -1,0 +1,37 @@
+:root {
+  /* 墨色系 */
+  --ink: #1a1612;
+  --ink-soft: #3d3530;
+
+  /* 宣纸系 */
+  --paper: #f4ede0;
+  --paper-dark: #e8dcc4;
+  --paper-light: #faf6ed;
+
+  /* 朱砂系 */
+  --vermilion: #c8392b;
+  --vermilion-deep: #a02d22;
+  --vermilion-light: #e8584a;
+
+  /* 金色系 */
+  --gold: #b8860b;
+  --gold-light: #d4a534;
+
+  /* 翠玉系 */
+  --jade: #4a7c59;
+  --jade-deep: #2d5238;
+
+  /* 雾色系 */
+  --mist: #d9cfb8;
+  --mist-light: #ebe3d0;
+
+  /* 阴影 */
+  --shadow: rgba(26, 22, 18, 0.12);
+  --shadow-deep: rgba(26, 22, 18, 0.25);
+
+  /* 字体族 */
+  --font-serif: 'Noto Serif SC', serif;
+  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-display: 'DM Serif Display', serif;
+  --font-latin: 'Cormorant Garamond', serif;
+}

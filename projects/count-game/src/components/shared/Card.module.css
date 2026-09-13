@@ -1,0 +1,25 @@
+.card {
+  background: var(--paper-light);
+  border: 1px solid var(--mist);
+  border-radius: 4px;
+  padding: 2rem;
+  box-shadow: 0 2px 20px var(--shadow);
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--vermilion), var(--gold), var(--jade));
+  border-radius: 4px 4px 0 0;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 1.5rem;
+  }
+}

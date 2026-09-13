@@ -1,0 +1,130 @@
+.panel {
+  max-width: 400px;
+  margin: 0 auto;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 2rem;
+  text-align: center;
+  color: var(--ink);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.3rem;
+}
+
+.desc {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+.errorBar {
+  background: rgba(200, 57, 43, 0.1);
+  border: 1px solid var(--vermilion);
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  color: var(--vermilion);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.tabToggle {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 0.8rem;
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  transition: all 0.3s ease;
+}
+
+.tabBtn:hover {
+  border-color: var(--vermilion);
+}
+
+.tabActive {
+  background: var(--ink);
+  color: var(--paper-light);
+  border-color: var(--ink);
+}
+
+.sectionLabel {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionLabel::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: var(--vermilion);
+  border-radius: 2px;
+}
+
+.input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  background: var(--paper);
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+.input:focus {
+  border-color: var(--vermilion);
+}
+
+.actionBtn {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: var(--ink);
+  color: var(--paper-light);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actionBtn:hover:not(:disabled) {
+  background: var(--vermilion);
+}
+
+.actionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

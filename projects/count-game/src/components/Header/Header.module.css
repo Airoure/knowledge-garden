@@ -1,0 +1,140 @@
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.ornamentLine {
+  display: block;
+  height: 1px;
+  width: 60px;
+  background: linear-gradient(90deg, transparent, var(--ink-soft), transparent);
+}
+
+.ornamentDot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: var(--vermilion);
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.sub {
+  font-family: var(--font-latin), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.7;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: clamp(2.8rem, 8vw, 4.5rem);
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  line-height: 1;
+  margin: 0.3rem 0;
+  position: relative;
+  display: inline-block;
+}
+
+.charVermilion {
+  color: var(--vermilion);
+}
+
+.seal {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  transform: translateY(-50%) rotate(-8deg);
+  width: 52px;
+  height: 52px;
+  border: 2.5px solid var(--vermilion);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--vermilion);
+  background: rgba(200, 57, 43, 0.04);
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-align: center;
+  opacity: 0.85;
+}
+
+.tagline {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.3em;
+  margin-top: 0.8rem;
+  font-weight: 400;
+}
+
+@media (max-width: 640px) {
+  .seal {
+    width: 40px;
+    height: 40px;
+    font-size: 0.8rem;
+    right: -5px;
+  }
+}
+
+/* ===== 用户信息栏 ===== */
+.userBar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.username {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink);
+  letter-spacing: 0.1em;
+}
+
+.logoutBtn {
+  background: none;
+  border: 1px solid var(--mist);
+  border-radius: 4px;
+  padding: 0.3rem 0.7rem;
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.1em;
+}
+
+.logoutBtn:hover {
+  border-color: var(--vermilion);
+  color: var(--vermilion);
+}
+
+@media (max-width: 640px) {
+  .userBar {
+    position: static;
+    justify-content: center;
+    margin-top: 0.8rem;
+  }
+}

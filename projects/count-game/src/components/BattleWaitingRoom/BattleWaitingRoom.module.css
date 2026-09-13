@@ -1,0 +1,244 @@
+.waitingRoom {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.backBtn:hover {
+  opacity: 1;
+  color: var(--vermilion);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 900;
+  font-size: 1.8rem;
+  text-align: center;
+  color: var(--ink);
+  letter-spacing: 0.2em;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== 房间号 ===== */
+.roomCodeArea {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--paper);
+  border: 2px dashed var(--mist);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.roomCodeLabel {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.3em;
+  margin-bottom: 0.5rem;
+}
+
+.roomCode {
+  font-family: var(--font-display), serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--vermilion);
+  letter-spacing: 0.3em;
+  line-height: 1;
+  padding-left: 0.3em;
+}
+
+.roomCodeHint {
+  font-size: 0.78rem;
+  color: var(--gold);
+  margin-top: 0.6rem;
+  letter-spacing: 0.1em;
+}
+
+/* ===== 通用 ===== */
+.sectionLabel {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionLabel::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: var(--vermilion);
+  border-radius: 2px;
+}
+
+/* ===== 玩家列表 ===== */
+.playerList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.playerItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+}
+
+.playerBadge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.playerName {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.hostTag {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--vermilion);
+  border: 1px solid var(--vermilion);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  letter-spacing: 0.1em;
+}
+
+/* 离线玩家（断线重连中） */
+.playerOffline {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.offlineTag {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  letter-spacing: 0.1em;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.playerItemPlaceholder {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: transparent;
+  border: 1.5px dashed var(--mist);
+  border-radius: 6px;
+  opacity: 0.5;
+}
+
+.playerBadgePlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--mist);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.placeholderText {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+/* ===== 配置 ===== */
+.configRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--mist-light);
+  font-size: 0.9rem;
+}
+
+.configLabel {
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+}
+
+.configValue {
+  color: var(--ink);
+  font-weight: 600;
+  font-family: var(--font-serif);
+}
+
+/* ===== 开始按钮 ===== */
+.startBtn {
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1.1rem;
+  background: var(--ink);
+  color: var(--paper-light);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.3em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.startBtn:hover:not(:disabled) {
+  background: var(--vermilion);
+}
+
+.startBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.waitingHint {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.4; }
+}

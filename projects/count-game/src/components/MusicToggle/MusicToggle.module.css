@@ -1,0 +1,63 @@
+.toggle {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.2rem;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 50%;
+  background: rgba(244, 237, 224, 0.7);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  transition: all 0.3s ease;
+  opacity: 0.6;
+}
+
+.toggle:hover {
+  opacity: 1;
+  border-color: var(--vermilion);
+  color: var(--vermilion);
+  transform: scale(1.08);
+}
+
+.note {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.mutedIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slash {
+  position: absolute;
+  width: 26px;
+  height: 1.5px;
+  background: var(--vermilion);
+  transform: rotate(-45deg);
+}
+
+@media (max-width: 640px) {
+  .toggle {
+    top: 0.8rem;
+    right: 0.8rem;
+    width: 34px;
+    height: 34px;
+  }
+
+  .note {
+    font-size: 0.95rem;
+  }
+
+  .slash {
+    width: 22px;
+  }
+}

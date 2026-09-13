@@ -1,0 +1,153 @@
+/* ============================================================
+   资料分析错题本 · 「批改过的试卷」视觉体系
+   纸面 / 墨字 / 批改红 / 钢笔蓝 / 表线 / 印章
+   ============================================================ */
+:root {
+  --paper: #f6f2e7;        /* 米白纸 */
+  --paper-deep: #efe9d8;   /* 纸面深一档（工具行） */
+  --ink: #26231b;          /* 墨黑 */
+  --ink-soft: #6b6555;     /* 墨灰（次要文字） */
+  --rule: #d9d2be;         /* 表线 */
+  --red: #c53b2e;          /* 批改红 */
+  --red-deep: #a02a20;
+  --blue: #2b4c7e;         /* 钢笔蓝 */
+  --amber: #b07718;        /* 黄墨 */
+  --green: #3e7a4c;        /* 绿墨 */
+  --display: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --body: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --hand: "Kaiti SC", "STKaiti", "KaiTi", "楷体", serif;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--body);
+  background: var(--paper);
+  background-image:
+    linear-gradient(rgba(38, 35, 27, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38, 35, 27, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+.app { max-width: 960px; margin: 0 auto; padding: 0 16px 60px; }
+
+/* 卷头：墨线 + 副线双分隔 */
+.topbar { display: flex; align-items: center; gap: 20px; padding: 22px 0 16px; flex-wrap: wrap; border-bottom: 1px solid var(--ink); position: relative; }
+.topbar::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; border-bottom: 1px solid var(--rule); }
+.topbar h1 { font-family: var(--display); font-size: 24px; font-weight: 700; letter-spacing: 0.06em; margin: 0; }
+.topbar h1::before { content: "▍"; color: var(--red); margin-right: 4px; }
+.topbar nav { display: flex; gap: 4px; }
+.tab { border: none; border-bottom: 2px solid transparent; background: transparent; padding: 6px 14px; cursor: pointer; font-size: 15px; color: var(--ink-soft); }
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
+
+main { margin-top: 18px; }
+.hint { color: var(--ink-soft); text-align: center; padding: 48px 0; font-family: var(--hand); font-size: 15px; }
+
+/* 错误横幅：批改红批注 */
+.error-banner { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; padding: 10px 14px; border: 1px solid var(--red); border-left: 4px solid var(--red); background: #fdf1ee; color: var(--red-deep); }
+.error-banner button { border: 1px solid var(--red); background: transparent; color: var(--red-deep); padding: 4px 10px; cursor: pointer; }
+.error-banner button:hover { background: var(--red); color: #fff; }
+
+/* 工具行：表格工具条 */
+.filterbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 14px; background: var(--paper-deep); border: 1px solid var(--rule); margin-bottom: 16px; }
+.filterbar select, .filterbar input[type=text], .filterbar input[type=date] { padding: 6px 10px; border: 1px solid var(--rule); background: #fdfbf3; color: var(--ink); }
+.date-filter { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--ink-soft); font-family: var(--hand); }
+.filterbar button { border: 1px solid var(--ink); background: transparent; padding: 6px 14px; cursor: pointer; font-size: 14px; }
+.filterbar button:hover { background: var(--ink); color: var(--paper); }
+.filterbar button.primary { border-color: var(--red); background: var(--red); color: #fff; }
+.filterbar button.primary:hover { background: var(--red-deep); border-color: var(--red-deep); color: #fff; }
+
+/* 知识点筛选：表线小格 */
+.chip { display: inline-block; border: 1px solid var(--rule); background: transparent; padding: 3px 10px; cursor: pointer; font-size: 13px; color: var(--ink-soft); }
+.chip:hover { border-color: var(--ink); color: var(--ink); }
+.chip.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+/* 卡片：纸页残片 */
+.card { background: #fdfbf3; border: 1px solid var(--rule); border-top: 2px solid var(--rule); padding: 16px 18px; margin-bottom: 12px; }
+.card .stem { white-space: pre-wrap; word-break: break-word; }
+
+/* 状态印章（signature：双线边框 = 盖章感） */
+.badge { display: inline-block; padding: 2px 10px; font-size: 12px; letter-spacing: 0.08em; border: 2px double currentColor; background: transparent; }
+.badge.unmastered { color: var(--red); }
+.badge.reviewing { color: var(--amber); }
+.badge.mastered { color: var(--green); }
+.badge.kp { color: var(--blue); border: 1px solid var(--blue); }
+.badge.cause { color: var(--ink-soft); border: 1px solid var(--rule); }
+
+/* 题干图片 */
+.stem-images { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.stem-images img { max-width: 100%; max-height: 320px; border: 1px solid var(--rule); }
+.thumb { position: relative; }
+.thumb img { max-height: 140px; }
+.thumb button { position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; padding: 0; background: var(--red); color: #fff; border: 1px solid var(--red); cursor: pointer; line-height: 1; }
+.thumb button:hover { background: var(--red-deep); }
+.paste-hint { font-size: 12px; color: var(--ink-soft); margin-top: 4px; font-family: var(--hand); }
+
+/* 关联 Trick */
+.linked-tricks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.trick-chip { display: inline-flex; flex-direction: column; }
+.trick-chip-btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px dashed var(--ink-soft); padding: 4px 12px; cursor: pointer; font-size: 13px; color: var(--ink); }
+.trick-chip-btn:hover { border-style: solid; border-color: var(--blue); color: var(--blue); }
+.trick-chip.on .trick-chip-btn { background: #f3f0e4; border: 1px solid var(--blue); color: var(--blue); }
+.trick-chip .badge.kp { margin-left: 0; }
+.expand-hint { font-size: 10px; color: var(--ink-soft); }
+.trick-chip-body { margin-top: 6px; padding: 10px 12px; background: #f7f3e6; border: 1px solid var(--rule); max-width: 640px; }
+.trick-chip-body .stem { white-space: pre-wrap; word-break: break-word; }
+
+/* meta 行：手写批注感 */
+.card .meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--ink-soft); align-items: center; font-family: var(--hand); }
+.card .actions { margin-top: 12px; display: flex; gap: 8px; }
+.card .actions button { border: 1px solid var(--rule); background: transparent; padding: 4px 12px; cursor: pointer; font-size: 13px; }
+.card .actions button:hover { border-color: var(--red); color: var(--red); }
+
+/* 弹层：一页纸 + 硬阴影 */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(38, 35, 27, 0.45); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.modal { background: #fdfbf3; border: 1px solid var(--ink); box-shadow: 6px 6px 0 rgba(38, 35, 27, 0.18); padding: 22px; width: min(640px, 94vw); max-height: 86vh; overflow-y: auto; }
+.modal h2 { margin-top: 0; font-family: var(--display); letter-spacing: 0.04em; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+.form-row input[type=text], .form-row textarea, .form-row select { width: 100%; padding: 8px 10px; border: 1px solid var(--rule); background: #fffdf6; color: var(--ink); font: inherit; }
+.form-row textarea { min-height: 80px; resize: vertical; }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.form-actions button { border: 1px solid var(--ink); background: transparent; padding: 6px 16px; cursor: pointer; }
+.form-actions button:hover { background: var(--ink); color: var(--paper); }
+.form-actions .primary { background: var(--red); border-color: var(--red); color: #fff; }
+.form-actions .primary:hover { background: var(--red-deep); color: #fff; }
+
+/* 复习 */
+.review-card { background: #fdfbf3; border: 1px solid var(--rule); border-top: 2px solid var(--ink); padding: 26px; }
+.review-card .answer-box { background: #f3f7ef; border: 1px solid #cfdcc6; padding: 14px; margin-top: 16px; }
+.review-actions { display: flex; gap: 10px; margin-top: 20px; }
+.review-actions button { border: 1px solid var(--ink); background: transparent; padding: 8px 20px; cursor: pointer; font-size: 15px; }
+.review-actions button:hover { background: var(--ink); color: var(--paper); }
+.review-actions .primary { background: var(--red); border-color: var(--red); color: #fff; }
+.review-actions .primary:hover { background: var(--red-deep); color: #fff; }
+
+/* 统计 */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.chart-box { background: #fdfbf3; border: 1px solid var(--rule); padding: 14px 16px; }
+.chart-box h3 { margin-top: 0; font-size: 15px; font-family: var(--display); }
+
+/* 打印 / 导出 PDF */
+.print-header { display: none; }
+@media print {
+  .topbar, .filterbar, .error-banner, .actions, .hint, .modal-backdrop { display: none !important; }
+  body { background: #fff; }
+  .app { max-width: none; padding: 0; }
+  main { margin-top: 0; }
+  .print-header { display: block; font-family: var(--display); font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+  .card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc; background: #fff; }
+  .trick-chip { display: block; margin-bottom: 8px; }
+  .trick-chip-btn { border: none; padding: 0; font-weight: 600; color: #111; }
+  .trick-chip-btn .badge.kp { border: 1px solid #ccc; background: #f5f5f5; color: #333; }
+  .expand-hint { display: none; }
+  .trick-chip-body { margin-top: 4px; padding: 0; border: none; background: none; max-width: none; }
+  .stem-images img { max-height: none; }
+}
+@media (max-width: 720px) { .chart-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

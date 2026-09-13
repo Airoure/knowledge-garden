@@ -1,0 +1,348 @@
+.setupPanel {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+/* ===== 区块标题 ===== */
+.sectionLabel {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionLabel::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  background: var(--vermilion);
+  border-radius: 2px;
+}
+
+.sectionNumber {
+  font-family: var(--font-latin), serif;
+  font-size: 0.8rem;
+  color: var(--gold);
+  font-weight: 600;
+  margin-left: auto;
+  letter-spacing: 0.1em;
+}
+
+/* ===== 模式切换 ===== */
+.modeToggle {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.8rem;
+}
+
+.modeBtn {
+  flex: 1;
+  padding: 0.9rem;
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.modeBtn:hover {
+  border-color: var(--vermilion);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.modeActive {
+  background: var(--ink);
+  color: var(--paper-light);
+  border-color: var(--ink);
+  box-shadow: 0 4px 16px var(--shadow-deep);
+}
+
+/* ===== 运算类型按钮 ===== */
+.opGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 1.8rem;
+}
+
+.opBtn {
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  padding: 1rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--ink-soft);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.opSymbol {
+  font-family: var(--font-display), serif;
+  font-size: 1.8rem;
+  display: block;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+
+.opLabel {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+.opBtn:hover {
+  border-color: var(--vermilion);
+  background: var(--paper-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.opBtn.active {
+  border-color: var(--vermilion);
+  background: var(--vermilion);
+  color: var(--paper-light);
+  box-shadow: 0 4px 16px rgba(200, 57, 43, 0.3);
+}
+
+.opBtn.active .opSymbol {
+  color: var(--paper-light);
+}
+
+/* ===== 难度卡片 ===== */
+.diffGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 1.8rem;
+}
+
+.diffBtn {
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  padding: 1.2rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: left;
+}
+
+.diffBtn:hover {
+  border-color: var(--vermilion);
+  background: var(--paper-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.diffBtn.active {
+  border-color: var(--vermilion);
+  background: var(--vermilion);
+  color: var(--paper-light);
+  box-shadow: 0 4px 16px rgba(200, 57, 43, 0.3);
+}
+
+.diffTitle {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.diffDesc {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+.diffExample {
+  font-family: var(--font-display), serif;
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin-top: 0.4rem;
+}
+
+.diffBtn.active .diffExample {
+  color: var(--gold-light);
+}
+
+/* ===== 题目数量 / 时间选项 ===== */
+.countOptions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.countBtn {
+  flex: 1;
+  min-width: 70px;
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  padding: 0.7rem;
+  cursor: pointer;
+  font-family: var(--font-display), serif;
+  font-size: 1.3rem;
+  color: var(--ink-soft);
+  transition: all 0.3s ease;
+}
+
+.countBtn:hover {
+  border-color: var(--vermilion);
+  transform: translateY(-2px);
+}
+
+.countActive {
+  background: var(--ink);
+  color: var(--paper-light);
+  border-color: var(--ink);
+}
+
+/* ===== 无尽模式设置 ===== */
+.endlessSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.endlessRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.endlessLabel {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  min-width: 4em;
+}
+
+.endlessRow .countOptions {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.endlessRow .countBtn {
+  font-size: 1rem;
+  padding: 0.6rem 0.5rem;
+}
+
+/* ===== 对战模式介绍 ===== */
+.battleIntro {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.battleIntroText {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  line-height: 1.8;
+  letter-spacing: 0.05em;
+}
+
+/* ===== 操作按钮区 ===== */
+.actionRow {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+.historyBtn {
+  flex-shrink: 0;
+  padding: 1.1rem 1.5rem;
+  background: var(--paper);
+  color: var(--ink-soft);
+  border: 1.5px solid var(--mist);
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.historyBtn:hover {
+  border-color: var(--vermilion);
+  color: var(--vermilion);
+}
+
+/* ===== 开始按钮 ===== */
+.startBtn {
+  flex: 1;
+  display: block;
+  padding: 1.1rem;
+  background: var(--ink);
+  color: var(--paper-light);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.3em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.startBtn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--vermilion);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+  z-index: 0;
+}
+
+.startBtn span {
+  position: relative;
+  z-index: 1;
+}
+
+.startBtn:hover::after {
+  transform: scaleX(1);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 640px) {
+  .opGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .diffGrid {
+    grid-template-columns: 1fr;
+  }
+  .endlessRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .endlessLabel {
+    min-width: 0;
+  }
+}
