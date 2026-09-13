@@ -407,3 +407,180 @@ em { font-style: normal; color: var(--tx2); font-size: 13.5px; }
 .svg-cell .s-tag { display: block; font-size: 12px; color: var(--mut); margin-bottom: 6px; }
 .demo .d-opts svg { height: 48px; width: auto; vertical-align: middle; }
 .grid9 rect { stroke: #22304f; }
+
+/* ══════════════════════════════════════════════════════════
+   每日成语 · 易混词（SM-2 间隔重复）
+   ══════════════════════════════════════════════════════════ */
+
+/* ── 看板：指标胶囊 ── */
+.bar-chip {
+  font-size: 11.5px; padding: 2px 9px; border-radius: 999px;
+  border: 1px solid var(--line2); color: var(--tx2); background: var(--panel2);
+  white-space: nowrap;
+}
+
+/* ── 未来 7 天复习量柱状图 ── */
+.forecast {
+  display: flex; gap: 10px; align-items: flex-end; justify-content: space-between;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px 18px 12px;
+}
+.fc-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.fc-bar {
+  width: 100%; max-width: 38px; height: 74px; display: flex; align-items: flex-end;
+  background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+}
+.fc-bar i {
+  display: block; width: 100%; min-height: 3px;
+  background: linear-gradient(180deg, var(--acc), var(--acc2)); opacity: .9;
+  transition: height .25s ease;
+}
+.fc-col .fc-n { font-size: 12.5px; font-family: var(--mono); color: var(--tx); font-weight: 700; }
+.fc-col .fc-d { font-size: 11.5px; color: var(--mut); }
+
+/* ── 词库总览列表 ── */
+.db-list { display: flex; flex-direction: column; gap: 8px; }
+.db-item {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 0; overflow: hidden;
+}
+.db-item summary {
+  cursor: pointer; padding: 11px 15px; display: flex; align-items: center; gap: 10px;
+  list-style: none; font-size: 14.5px;
+}
+.db-item summary::-webkit-details-marker { display: none; }
+.db-item summary:hover { background: var(--panel2); }
+.db-item .db-type {
+  font-size: 11px; color: var(--mut); border: 1px solid var(--line2);
+  border-radius: 999px; padding: 1px 8px; white-space: nowrap;
+}
+.db-item .db-g { margin-left: auto; font-size: 11.5px; color: var(--mut); }
+.db-body { padding: 4px 15px 14px; border-top: 1px solid var(--line); background: var(--panel2); }
+.db-row { display: flex; gap: 10px; font-size: 13.5px; color: var(--tx2); padding-top: 9px; line-height: 1.65; }
+.db-row .db-k {
+  flex: none; width: 74px; color: var(--mut); font-size: 12px; padding-top: 2px;
+}
+.db-row .db-eg { color: #7dd3fc; }
+
+/* ── 学习会话：进度条与状态栏 ── */
+.st-bar {
+  height: 6px; border-radius: 3px; background: var(--panel2);
+  border: 1px solid var(--line); overflow: hidden; margin: 6px 0 12px;
+}
+.st-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--acc), var(--acc2));
+  transition: width .3s ease;
+}
+.st-stat {
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+  font-size: 12.5px; color: var(--tx2); margin-bottom: 16px;
+}
+.st-stat b { font-family: var(--mono); }
+.st-stat .ok b { color: var(--good); }
+.st-stat .bad b { color: var(--bad); }
+.tag-new, .tag-rev {
+  font-size: 11px; padding: 1.5px 8px; border-radius: 999px; border: 1px solid;
+}
+.tag-new { color: var(--acc); border-color: rgba(56, 189, 248, .5); background: rgba(56, 189, 248, .08); }
+.tag-rev { color: var(--warn); border-color: rgba(251, 191, 36, .45); background: rgba(251, 191, 36, .07); }
+
+/* ── 学习会话：翻转卡片 ── */
+.card-wrap {
+  perspective: 1400px; max-width: 620px; margin: 0 auto 18px;
+  min-height: 340px; position: relative;
+}
+.card-fc {
+  position: relative; width: 100%; min-height: 340px;
+  transition: transform .45s cubic-bezier(.2, .8, .3, 1);
+  transform-style: preserve-3d;
+}
+.card-fc.flipped { transform: rotateY(180deg); }
+.card-face {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: var(--panel); border: 1px solid var(--line2); border-radius: var(--radius);
+  padding: 24px 26px; display: flex; flex-direction: column; overflow-y: auto;
+}
+.card-face.card-back { transform: rotateY(180deg); overflow-y: auto; }
+.card-kind { font-size: 11.5px; color: var(--mut); letter-spacing: .5px; margin-bottom: 14px; }
+.card-word {
+  font-size: 34px; font-weight: 800; line-height: 1.3; letter-spacing: 2px;
+  background: linear-gradient(120deg, #7dd3fc, #818cf8 70%, #f472b6);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  text-align: center; margin: auto 0;
+}
+.card-word.small { font-size: 22px; letter-spacing: 1px; margin: 0 0 14px; text-align: left; }
+.card-hint { font-size: 12.5px; color: var(--mut); text-align: center; margin-bottom: 14px; }
+.st-flip { align-self: center; }
+.st-flip-wide { width: 100%; padding: 13px; }
+.card-sec { margin-bottom: 12px; }
+.card-sec .card-k {
+  display: inline-block; font-size: 11.5px; color: var(--acc);
+  border: 1px solid rgba(56, 189, 248, .4); border-radius: 999px;
+  padding: 1px 9px; margin-bottom: 6px;
+}
+.card-sec p { font-size: 14.5px; color: var(--tx2); line-height: 1.75; }
+.card-sec p.eg { color: #7dd3fc; }
+
+/* ── 学习会话：三档自评 ── */
+.st-actions { max-width: 620px; margin: 0 auto; }
+.st-ask { font-size: 13px; color: var(--tx2); text-align: center; margin-bottom: 10px; }
+.rate-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.btn.rate {
+  display: flex; flex-direction: column; gap: 3px; padding: 12px 8px;
+  font-weight: 700; font-size: 15px; text-align: center; line-height: 1.3;
+}
+.btn.rate small { font-size: 11px; font-weight: 400; color: var(--mut); }
+.btn.rate:hover small { color: var(--tx2); }
+.btn.rate-again:hover { border-color: var(--bad); color: var(--bad); }
+.btn.rate-hard:hover { border-color: var(--warn); color: var(--warn); }
+.btn.rate-good:hover { border-color: var(--good); color: var(--good); }
+.st-foot { text-align: center; margin-top: 14px; }
+
+/* ── 等待态（「忘记」的词条冷却中） ── */
+.st-wait {
+  max-width: 560px; margin: 30px auto 0; text-align: center;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 32px 26px;
+}
+.st-wait-ic { font-size: 40px; margin-bottom: 8px; }
+.st-wait h2 { font-size: 19px; margin-bottom: 6px; }
+.st-wait-sub { margin-bottom: 16px; }
+.st-wait-clock {
+  font-family: var(--mono); font-size: 46px; font-weight: 800; color: var(--warn);
+  letter-spacing: 2px; margin-bottom: 18px;
+}
+.st-wait-item {
+  display: inline-block; margin: 5px 4px 0; padding: 3px 12px;
+  background: var(--panel2); border: 1px solid var(--line2); border-radius: 999px;
+  font-size: 13.5px; color: var(--tx);
+}
+
+/* ── 完成态 ── */
+.st-done {
+  max-width: 560px; margin: 26px auto 0; text-align: center;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 34px 26px;
+}
+.st-done-ic { font-size: 46px; }
+.st-done h2 { font-size: 23px; margin: 8px 0 2px; }
+.st-done-sub { font-size: 11.5px; color: var(--mut); letter-spacing: 2px; margin-bottom: 22px; }
+.st-done-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.st-done-grid .n { display: block; font-family: var(--mono); font-size: 26px; font-weight: 800; }
+.st-done-grid .n.ok { color: var(--good); }
+.st-done-grid .n.bad { color: var(--bad); }
+.st-done-grid .l { font-size: 11.5px; color: var(--mut); }
+.st-done-meta { line-height: 1.9; margin-bottom: 20px; }
+.st-done-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* ── 窄屏适配 ── */
+@media (max-width: 620px) {
+  .card-word { font-size: 27px; }
+  .card-face { padding: 20px 18px; }
+  .card-wrap, .card-fc { min-height: 300px; }
+  .rate-row { grid-template-columns: 1fr; }
+  .btn.rate { flex-direction: row; justify-content: center; gap: 8px; align-items: baseline; }
+  .st-done-grid { grid-template-columns: repeat(2, 1fr); }
+  .forecast { gap: 6px; padding: 14px 12px 10px; }
+  .fc-col .fc-d { font-size: 10.5px; }
+  .ov-card { grid-template-columns: 1fr; }
+}
