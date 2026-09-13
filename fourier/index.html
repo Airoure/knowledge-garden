@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>傅里叶变换 · 从直觉到掌握</title>
+<meta name="description" content="通过交互式可视化，零基础掌握傅里叶变换的核心概念、数学原理和实际应用">
+<script>
+MathJax = {tex:{inlineMath:[['$','$'],['\\(','\\)']]},svg:{fontCache:'global'}};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg-card: #111827;
+  --bg-elevated: #1a2236;
+  --text: #e5e7eb;
+  --text-dim: #9ca3af;
+  --text-muted: #6b7280;
+  --accent: #06b6d4;
+  --accent2: #3b82f6;
+  --amber: #f59e0b;
+  --green: #10b981;
+  --pink: #ec4899;
+  --border: #1f2937;
+  --radius: 12px;
+  --font: system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-serif: Georgia,'Times New Roman',serif;
+  --font-mono: 'JetBrains Mono','Fira Code',monospace;
+  --nav-h: 60px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  overflow-x:hidden;
+}
+/* ── Navigation ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);
+  background:rgba(10,14,26,.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 24px;
+  gap:16px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+nav::-webkit-scrollbar{height:0}
+nav a{
+  color:var(--text-dim);text-decoration:none;font-size:13px;
+  white-space:nowrap;padding:6px 12px;border-radius:6px;
+  transition:.2s;font-weight:500;
+  flex-shrink:0;
+}
+nav a:hover,nav a.active{color:var(--accent);background:rgba(6,182,212,.1)}
+
+/* ── Hero ── */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;
+  padding:calc(var(--nav-h) + 40px) 24px 60px;
+  position:relative;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 50%, rgba(6,182,212,.08) 0, transparent),
+    radial-gradient(ellipse 500px 500px at 80% 30%, rgba(59,130,246,.06) 0, transparent),
+    var(--bg);
+}
+.hero h1{
+  font-size:clamp(2.4rem,6vw,4.5rem);
+  font-family:var(--font-serif);
+  font-weight:700;
+  background:linear-gradient(135deg,#06b6d4,#3b82f6,#a855f7);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:12px;
+}
+.hero .sub{
+  font-size:clamp(1rem,2.5vw,1.4rem);
+  color:var(--text-dim);
+  max-width:700px;
+  margin-bottom:32px;
+}
+.hero .cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;border-radius:var(--radius);
+  background:linear-gradient(135deg,#06b6d4,#3b82f6);
+  color:#fff;font-weight:600;text-decoration:none;
+  font-size:16px;transition:transform .2s,box-shadow .2s;
+}
+.hero .cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(6,182,212,.3)}
+.hero .scroll-indicator{
+  position:absolute;bottom:32px;
+  color:var(--text-muted);font-size:13px;
+  animation:bounce 2s infinite;
+}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+
+/* ── Hero canvas waves ── */
+#hero-canvas{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;opacity:.25;
+}
+
+/* ── Sections ── */
+section{padding:80px 24px}
+.section-inner{
+  max-width:960px;margin:0 auto;
+}
+section h2{
+  font-size:clamp(1.6rem,3.5vw,2.4rem);
+  font-family:var(--font-serif);
+  margin-bottom:8px;
+  color:#fff;
+}
+section h2 .emoji{margin-right:10px}
+section .lead{
+  color:var(--text-dim);
+  font-size:1.05rem;
+  margin-bottom:36px;
+  max-width:700px;
+}
+.sep{width:60px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));margin:0 0 24px}
+
+/* ── Cards ── */
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+  margin-bottom:20px;
+}
+.card h3{font-size:1.15rem;margin-bottom:8px;color:#fff}
+.card p{color:var(--text-dim);font-size:.95rem}
+.card .math{font-family:var(--font-serif);color:var(--accent);font-size:1.1rem;margin:8px 0}
+.highlight-box{
+  background:rgba(6,182,212,.08);
+  border-left:3px solid var(--accent);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:16px 20px;margin:16px 0;
+}
+.highlight-box p{color:var(--text);margin:0;font-size:.95rem}
+
+/* ── Canvas demos ── */
+.demo-container{
+  background:var(--bg-elevated);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  margin:20px 0;
+  position:relative;
+}
+.demo-container canvas{
+  width:100%;height:auto;
+  display:block;border-radius:6px;
+  background:var(--bg);
+}
+.demo-controls{
+  display:flex;flex-wrap:wrap;gap:12px;align-items:center;
+  margin-top:14px;
+}
+.demo-controls label{font-size:13px;color:var(--text-dim);display:flex;align-items:center;gap:6px}
+.demo-controls input[type="range"]{
+  accent-color:var(--accent);width:100px;
+  background:var(--bg);border-radius:4px;height:4px;
+}
+.demo-controls .val{color:var(--accent);font-family:var(--font-mono);font-size:13px;min-width:28px;text-align:right}
+.demo-btn{
+  padding:6px 14px;border-radius:6px;border:1px solid var(--border);
+  background:var(--bg-elevated);color:var(--text);font-size:13px;
+  cursor:pointer;transition:.15s;
+}
+.demo-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.demo-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ── Frequency bars ── */
+.freq-bars{display:flex;gap:3px;align-items:flex-end;height:80px;margin:10px 0}
+.freq-bar{
+  flex:1;border-radius:3px 3px 0 0;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  transition:height .3s;
+  min-height:2px;opacity:.8;
+}
+
+/* ── Grid layout ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+
+/* ── Epicycle canvas ── */
+#epicycle-canvas,#draw-canvas{
+  cursor:crosshair;touch-action:none;
+}
+
+/* ── Steps list ── */
+.steps{counter-reset:step}
+.step{
+  counter-increment:step;
+  padding:20px 0 20px 48px;
+  position:relative;
+  border-left:2px solid var(--border);
+  margin-left:14px;
+}
+.step:last-child{border-color:transparent}
+.step::before{
+  content:counter(step);
+  position:absolute;left:-14px;top:18px;
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.step h3{font-size:1.05rem;margin-bottom:4px;color:#fff}
+.step p{color:var(--text-dim);font-size:.93rem}
+.step .math{color:var(--accent);font-family:var(--font-serif);margin:6px 0}
+
+/* ── App grid ── */
+.app-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.app-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;transition:.2s;
+}
+.app-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.app-card .icon{font-size:2rem;margin-bottom:8px;display:block}
+.app-card h3{font-size:1rem;margin-bottom:6px}
+.app-card p{font-size:.88rem;color:var(--text-dim)}
+
+/* ── Next section ── */
+.next-section{text-align:center;margin-top:40px}
+.next-section a{
+  color:var(--accent);text-decoration:none;
+  font-size:15px;display:inline-flex;align-items:center;gap:6px;
+  transition:.2s;
+}
+.next-section a:hover{gap:10px}
+
+/* ── Footer ── */
+footer{
+  text-align:center;padding:40px 24px;
+  color:var(--text-muted);font-size:13px;
+  border-top:1px solid var(--border);
+}
+footer a{color:var(--accent);text-decoration:none}
+
+/* ── Math styling ── */
+.math-block{text-align:center;padding:20px;font-size:1.2rem;color:var(--text);overflow-x:auto}
+.math-note{color:var(--text-dim);font-size:.9rem;font-style:italic;margin:4px 0 12px}
+
+/* ── Slop audit: minimal, intentional ── */
+/* No tech gradients on cards, no glassmorphism, no accent rails, no icon toppers */
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav>
+  <a href="#intro">📖 直觉</a>
+  <a href="#sine">〰️ 正弦波</a>
+  <a href="#freq">🌊 时域↔频域</a>
+  <a href="#series">🔢 傅里叶级数</a>
+  <a href="#transform">⚡ 变换</a>
+  <a href="#epicycle">🌀 外摆线</a>
+  <a href="#apps">📱 应用</a>
+  <a href="#summary">🎯 总结</a>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<header class="hero" id="top">
+  <canvas id="hero-canvas"></canvas>
+  <h1>傅里叶变换</h1>
+  <p class="sub">从直觉到掌握 — 通过交互式可视化，理解这个"数学中最优美的公式"之一</p>
+  <a class="cta" href="#intro">🚀 开始学习</a>
+  <div class="scroll-indicator">↓ 向下滚动</div>
+</header>
+
+<!-- ═══════════════ 1. INTRO ═══════════════ -->
+<section id="intro">
+<div class="section-inner">
+  <h2><span class="emoji">📖</span> 什么是傅里叶变换？</h2>
+  <div class="sep"></div>
+  <p class="lead">一句话：<strong>傅里叶变换把任何信号拆解成不同频率的正弦波</strong>。就像把一杯水果奶昔分解回草莓、香蕉和牛奶。</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>🍹 奶昔比喻</h3>
+      <p>一杯混合奶昔（原始信号）→ 我们可以问：「里面有哪些成分？」傅里叶变换就是回答这个问题的数学工具。</p>
+      <p style="margin-top:8px;color:var(--text)">原始波形 = 不同频率 × 不同幅度 × 不同相位的正弦波之和</p>
+    </div>
+    <div class="card">
+      <h3>🎵 听觉直觉</h3>
+      <p>你听一首歌<br>→ 听到的不是那个"波形"<br>→ 你听到的是不同乐器在不同音高上演奏</p>
+      <p style="margin-top:8px;color:var(--text-dim)">你的耳朵天生就在做傅里叶变换！</p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p><strong>核心思想</strong>：任何周期信号（无论多复杂）都可以表示为一系列正弦波（$\sin$ 和 $\cos$）的加权和。这就是<strong>傅里叶级数</strong>。非周期信号则用<strong>傅里叶变换</strong>处理。</p>
+  </div>
+
+  <div class="next-section">
+    <a href="#sine">先理解正弦波 →</a>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════ 2. SINE WAVE ═══════════════ -->
+<section id="sine" style="background:rgba(6,182,212,.015)">
+<div class="section-inner">
+  <h2><span class="emoji">〰️</span> 正弦波：傅里叶世界的原子</h2>
+  <div class="sep"></div>
+  <p class="lead">正弦波是傅里叶分析中的"基本粒子"。所有复杂波形都由它们组成。</p>
+
+  <div class="card">
+    <h3>三个关键参数</h3>
+    <div class="grid-2" style="margin-top:12px">
+      <div>
+        <p><strong style="color:var(--accent)">频率 $f$</strong> — 每秒振荡次数（Hz）<br><span style="color:var(--text-dim);font-size:.85rem">决定音高</span></p>
+        <p style="margin-top:8px"><strong style="color:var(--amber)">幅度 $A$</strong> — 波的高度<br><span style="color:var(--text-dim);font-size:.85rem">决定音量</span></p>
+        <p style="margin-top:8px"><strong style="color:var(--green)">相位 $\phi$</strong> — 波的起始位置<br><span style="color:var(--text-dim);font-size:.85rem">决定时间偏移</span></p>
+      </div>
+      <div>
+        <p style="font-family:var(--font-serif);font-size:1.3rem;color:#fff;text-align:center;padding:20px 0">
+          $y(t) = A \cdot \sin(2\pi f t + \phi)$
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive sine wave -->
+  <div class="demo-container">
+    <canvas id="sine-canvas" height="200"></canvas>
+    <div class="demo-controls">
+      <label>频率 <input type="range" id="sine-freq" min="1" max="10" value="3" step="0.1"><span class="val" id="sine-freq-v">3.0</span>Hz</label>
+      <label>幅度 <input type="range" id="sine-amp" min="0" max="100" value="70"><span class="val" id="sine-amp-v">70</span></label>
+      <label>相位 <input type="range" id="sine-phase" min="0" max="360" value="0"><span class="val" id="sine-phase-v">0</span>°</label>
+      <button class="demo-btn" id="sine-play">▶ 动画</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔑 关键直觉</h3>
+    <p>正弦波的两个视角：</p>
+    <ul style="color:var(--text-dim);padding-left:20px;margin-top:8px;font-size:.93rem">
+      <li><strong>时域</strong>（时间视角）— 波形随<strong>时间</strong>变化（横轴是 t）</li>
+      <li><strong>频域</strong>（频率视角）— 把波看作一个<strong>圆</strong>上的旋转运动（横轴是 f）</li>
+    </ul>
+  </div>
+
+  <div class="next-section">
+    <a href="#freq">理解时域与频域 →</a>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════ 3. TIME ↔ FREQ ═══════════════ -->
+<section id="freq">
+<div class="section-inner">
+  <h2><span class="emoji">🌊</span> 时域 vs 频域</h2>
+  <div class="sep"></div>
+  <p class="lead">同一个信号的两个视角，就像一张照片的"空间域"和"频率域"。</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>⏱ 时域</h3>
+      <p>横轴 = <strong>时间</strong>，纵轴 = <strong>幅度</strong></p>
+      <p style="color:var(--text-dim);font-size:.9rem;margin-top:6px">我们看到信号如何随时间变化。<br>这是示波器显示的视图。</p>
+    </div>
+    <div class="card">
+      <h3>📊 频域</h3>
+      <p>横轴 = <strong>频率</strong>，纵轴 = <strong>幅度</strong></p>
+      <p style="color:var(--text-dim);font-size:.9rem;margin-top:6px">我们看到信号包含哪些频率成分。<br>这是频谱分析仪显示的视图。</p>
+    </div>
+  </div>
+
+  <!-- Interactive time-frequency demo -->
+  <div class="demo-container">
+    <canvas id="tf-canvas" height="300"></canvas>
+    <div class="demo-controls">
+      <label>频率1 <input type="range" id="tf-f1" min="1" max="8" value="2" step="0.5"><span class="val" id="tf-f1-v">2</span>Hz</label>
+      <label>幅度1 <input type="range" id="tf-a1" min="0" max="100" value="60"><span class="val" id="tf-a1-v">60</span></label>
+      <label>频率2 <input type="range" id="tf-f2" min="1" max="12" value="5" step="0.5"><span class="val" id="tf-f2-v">5</span>Hz</label>
+      <label>幅度2 <input type="range" id="tf-a2" min="0" max="100" value="30"><span class="val" id="tf-a2-v">30</span></label>
+      <button class="demo-btn active" id="tf-mode">🔁 显示频谱</button>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p><strong>💡 时域→频域的转换</strong>：傅里叶变换就是连接两个世界的桥梁。数学上：</p>
+    <div class="math-block">
+      $\displaystyle \hat{f}(\xi) = \int_{-\infty}^{\infty} f(t) \, e^{-2\pi i t \xi} \, dt$
+    </div>
+    <p style="color:var(--text-dim);font-size:.9rem;text-align:center">看不懂没关系 — 你只需要知道它把"时间信号"变成"频率成分"就够了！</p>
+  </div>
+
+  <div class="next-section">
+    <a href="#series">看波形如何从正弦波中诞生 →</a>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════ 4. FOURIER SERIES ═══════════════ -->
+<section id="series" style="background:rgba(59,130,246,.015)">
+<div class="section-inner">
+  <h2><span class="emoji">🔢</span> 傅里叶级数：用正弦波搭积木</h2>
+  <div class="sep"></div>
+  <p class="lead">任何周期函数都可以写成正弦和余弦的无穷级数 — 这是傅里叶最伟大的发现。</p>
+
+  <div class="card">
+    <h3>方波的诞生</h3>
+    <p>方波看起来像开关信号。它由无数个正弦波叠加而成：基频 + 3次谐波 + 5次谐波 + …</p>
+    <div class="math-block">
+      $\displaystyle \text{square}(t) = \frac{4}{\pi} \sum_{k=0}^{\infty} \frac{\sin\big((2k+1) \cdot 2\pi f t\big)}{2k+1}$
+    </div>
+  </div>
+
+  <!-- Square wave builder -->
+  <div class="demo-container">
+    <canvas id="series-canvas" height="220"></canvas>
+    <div class="demo-controls">
+      <label>谐波数 <input type="range" id="series-n" min="1" max="21" value="1" step="2"><span class="val" id="series-n-v">1</span></label>
+      <button class="demo-btn" id="series-reset">重置</button>
+    </div>
+    <div style="color:var(--text-dim);font-size:.8rem;margin-top:4px">拖动滑块增加谐波，观察方波如何逐渐成型</div>
+  </div>
+
+  <div class="card">
+    <h3>🔬 观察</h3>
+    <p>有趣的现象：</p>
+    <ul style="color:var(--text-dim);padding-left:20px;margin-top:8px;font-size:.93rem">
+      <li><strong>头几个谐波</strong>决定了波形的<strong>大致形状</strong></li>
+      <li><strong>高次谐波</strong>只负责<strong>细节和边缘的锐利度</strong></li>
+      <li>这就是<strong>音频压缩</strong>（MP3）的原理：丢掉人耳不敏感的高频细节</li>
+      <li>边缘处的过冲称为<strong>吉布斯现象</strong>（Gibbs phenomenon）</li>
+    </ul>
+  </div>
+
+  <div class="next-section">
+    <a href="#transform">傅里叶变换如何推广这个概念 →</a>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════ 5. TRANSFORM ═══════════════ -->
+<section id="transform">
+<div class="section-inner">
+  <h2><span class="emoji">⚡</span> 傅里叶变换：从离散到连续</h2>
+  <div class="sep"></div>
+  <p class="lead">傅里叶级数处理周期信号。傅里叶变换把同样的思想推广到任意信号。</p>
+
+  <div class="steps">
+    <div class="step">
+      <h3>从级数到变换</h3>
+      <p>周期信号 → 离散的频率分量（$f, 2f, 3f, \ldots$）</p>
+      <p>非周期信号 → 连续的频率谱（所有频率都可能存在）</p>
+    </div>
+    <div class="step">
+      <h3>变换公式</h3>
+      <p>核心公式（连续傅里叶变换）：</p>
+      <div class="math-block" style="font-size:1.1rem">
+        $\displaystyle X(f) = \int_{-\infty}^{\infty} x(t) \, e^{-j2\pi ft} \, dt$
+      </div>
+      <p style="color:var(--text-dim);font-size:.88rem">直观理解：对每个频率 $f$，计算信号与该频率正弦波的"相似度"。</p>
+    </div>
+    <div class="step">
+      <h3>逆变换</h3>
+      <p>从频谱还原回时间信号：</p>
+      <div class="math-block" style="font-size:1.1rem">
+        $\displaystyle x(t) = \int_{-\infty}^{\infty} X(f) \, e^{j2\pi ft} \, df$
+      </div>
+      <p style="color:var(--text-dim);font-size:.88rem">相当于用频率分量重新"合成"原始信号。</p>
+    </div>
+    <div class="step">
+      <h3>离散傅里叶变换 (DFT)</h3>
+      <p>计算机处理的是离散采样点，所以用 DFT：</p>
+      <div class="math-block" style="font-size:1rem">
+        $\displaystyle X_k = \sum_{n=0}^{N-1} x_n \cdot e^{-j2\pi kn/N}$
+      </div>
+      <p style="color:var(--text-dim);font-size:.88rem">FFT（快速傅里叶变换）是 DFT 的高效算法 — 把 $O(N^2)$ 降到 $O(N \log N)$</p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p><strong>🎯 一句话总结</strong>：傅里叶变换是信号在"时间域"和"频率域"之间的<strong>字典</strong>。用它你可以把信号翻译成频率的语言，做完处理后再翻译回来。</p>
+  </div>
+
+  <div class="next-section">
+    <a href="#epicycle">看最酷的可视化：外摆线绘图 →</a>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════ 6. EPICYCLES ═══════════════ -->
+<section id="epicycle" style="background:rgba(16,185,129,.015)">
+<div class="section-inner">
+  <h2><span class="emoji">🌀</span> 外摆线：傅里叶变换的视觉盛宴</h2>
+  <div class="sep"></div>
+  <p class="lead">3Blue1Brown 让这个可视化火遍全球 — 用一组旋转的圆（外摆线）画出任何图形。这就是傅里叶变换的几何含义。</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>原理</h3>
+      <p>把图形看作一个 3D 信号（$x$、$y$、$t$）。傅里叶变换找出每个"螺旋频率"的幅度和相位，然后用一组旋转的圆来合成。</p>
+      <p style="color:var(--text-dim);font-size:.88rem;margin-top:6px">每个圆代表一个频率分量：半径 = 幅度，转速 = 频率，初始角度 = 相位。</p>
+    </div>
+    <div class="card">
+      <h3>试试看</h3>
+      <p>在下方画板上画一个简单形状（比如字母或图形），滑块控制使用的圆的数量。</p>
+      <p style="color:var(--text-dim);font-size:.88rem;margin-top:6px">圆越多 → 图形越精确！</p>
+    </div>
+  </div>
+
+  <div class="demo-container">
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="demo-btn" id="epi-preset1">✏️ 铅笔</button>
+      <button class="demo-btn" id="epi-preset2">⭐ 星形</button>
+      <button class="demo-btn" id="epi-preset3">🌀 螺旋</button>
+      <button class="demo-btn" id="epi-clear">🗑 清除</button>
+    </div>
+    <canvas id="epicycle-canvas" height="400"></canvas>
+    <div class="demo-controls">
+      <label>圆的数量 <input type="range" id="epi-n" min="2" max="80" value="20"><span class="val" id="epi-n-v">20</span></label>
+      <button class="demo-btn" id="epi-play">▶ 运行动画</button>
+      <button class="demo-btn" id="epi-stop" style="display:none">⏹ 停止</button>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+      <canvas id="draw-canvas" height="200" style="width:200px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:crosshair"></canvas>
+      <div style="flex:1;min-width:150px">
+        <p style="color:var(--text-dim);font-size:.85rem"><strong>🎨 绘图区</strong><br>在上面画个图形，然后运行外摆线动画<br><span style="font-size:.8rem">提示：画简单轮廓效果最好</span></p>
+        <button class="demo-btn" id="draw-clear">清除绘图</button>
+        <button class="demo-btn" id="draw-apply">应用并动画</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p><strong>🤯 这就是傅里叶变换的几何意义</strong>：任何二维路径都可以分解为一系列匀速圆周运动的叠加。每个圆周运动对应频谱中的一个频率分量。</p>
+  </div>
+
+  <div class="next-section">
+    <a href="#apps">看傅里叶变换在现实中的应用 →</a>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════ 7. APPLICATIONS ═══════════════ -->
+<section id="apps">
+<div class="section-inner">
+  <h2><span class="emoji">📱</span> 现实世界中的应用</h2>
+  <div class="sep"></div>
+  <p class="lead">傅里叶变换不是纯粹的数学玩具 — 它就在你每天使用的技术背后。</p>
+
+  <div class="app-grid">
+    <div class="app-card">
+      <span class="icon">🎵</span>
+      <h3>MP3 音频压缩</h3>
+      <p>用傅里叶变换把音频信号转到频域，<strong>保留人耳敏感的频率</strong>，丢弃不敏感的部分。数据量减少 90%+，音质几乎不变。</p>
+    </div>
+    <div class="app-card">
+      <span class="icon">🖼️</span>
+      <h3>JPEG 图像压缩</h3>
+      <p>用离散余弦变换（DCT，傅里叶变换的变体）把图像块转为频率系数。丢弃高频细节（人眼不敏感），保留低频结构。</p>
+    </div>
+    <div class="app-card">
+      <span class="icon">📡</span>
+      <h3>通信系统</h3>
+      <p>4G/5G、WiFi、蓝牙都使用 OFDM（正交频分复用）— 本质上是把数据调制到不同频率的子载波上，用 FFT 编解码。</p>
+    </div>
+    <div class="app-card">
+      <span class="icon">🔬</span>
+      <h3>MRI 医学成像</h3>
+      <p>核磁共振成像（MRI）在<strong>频率空间</strong>（k-space）采集数据，然后用逆傅里叶变换重建出人体断层图像。</p>
+    </div>
+    <div class="app-card">
+      <span class="icon">🎤</span>
+      <h3>语音识别</h3>
+      <p>语音信号先做傅里叶变换得到频谱图（Spectrogram），深度学习模型在这上面提取特征进行识别。</p>
+    </div>
+    <div class="app-card">
+      <span class="icon">📈</span>
+      <h3>信号去噪</h3>
+      <p>信号转到频域后，噪声通常分布在高频。设计一个<strong>低通滤波器</strong>滤掉高频噪声，再逆变换回时域就得到干净信号。</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>🔄 数字信号处理管道</h3>
+    <p style="text-align:center;padding:12px 0;font-size:.95rem">
+      原始信号 → <strong style="color:var(--accent)">FFT</strong> → 频域处理(滤波/压缩/分析) → <strong style="color:var(--accent)">IFFT</strong> → 输出信号
+    </p>
+    <p style="color:var(--text-dim);font-size:.88rem;text-align:center">这是现代信号处理的标准范式</p>
+  </div>
+
+  <div class="next-section">
+    <a href="#summary">最后一站：总结回顾 →</a>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════ 8. SUMMARY ═══════════════ -->
+<section id="summary" style="background:rgba(168,85,247,.015)">
+<div class="section-inner">
+  <h2><span class="emoji">🎯</span> 总结与下一步</h2>
+  <div class="sep"></div>
+  <p class="lead">你已经掌握了傅里叶变换的核心直觉。下面是关键知识点回顾。</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>✅ 你学会了</h3>
+      <ul style="color:var(--text-dim);padding-left:18px;font-size:.92rem;line-height:2">
+        <li>傅里叶变换把信号分解为<strong>正弦波</strong></li>
+        <li><strong>时域</strong>与<strong>频域</strong>是同一信号的两种视角</li>
+        <li><strong>傅里叶级数</strong>用正弦波搭出复杂波形</li>
+        <li><strong>外摆线</strong>可视化傅里叶变换的几何含义</li>
+        <li>从 MP3 到 MRI 的<strong>实际应用</strong></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>📚 深入学习</h3>
+      <ul style="color:var(--text-dim);padding-left:18px;font-size:.92rem;line-height:2">
+        <li>🎬 3Blue1Brown — <a href="https://www.youtube.com/playlist?list=PLZHQObOWTQDNgPOF7oE1RqCEeOyQN8GX1" target="_blank" style="color:var(--accent)">傅里叶变换系列</a></li>
+        <li>📖 BetterExplained — <a href="https://betterexplained.com/articles/an-interactive-guide-to-the-fourier-transform/" target="_blank" style="color:var(--accent)">交互式指南</a></li>
+        <li>🌀 Jezzamon — <a href="https://www.jezzamon.com/fourier/" target="_blank" style="color:var(--accent)">交互式入门</a></li>
+        <li>📈 离散傅里叶变换 (DFT) 与 FFT 算法</li>
+        <li>🔊 数字信号处理 (DSP) 进阶</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="border-left-color:var(--amber);background:rgba(245,158,11,.06)">
+    <p><strong>💡 记住</strong>：傅里叶变换的核心思想只有一个 — <strong>任何信号都由不同频率的正弦波组成</strong>。掌握了这个直觉，剩下的都是技术细节。</p>
+  </div>
+
+  <div class="next-section">
+    <a href="#top" style="color:var(--amber)">↑ 回到顶部</a>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <p>傅里叶变换学习指南 · 通过交互式可视化掌握核心概念</p>
+  <p style="margin-top:4px">Built with ❤️ using HTML · CSS · Canvas</p>
+</footer>
+
+<!-- ════════════════════════════════════════════════
+     JAVASCRIPT — All interactive visualizations
+     ════════════════════════════════════════════════ -->
+<script>
+// ── Utils ──
+function lerp(a,b,t){return a+(b-a)*t}
+function clamp(v,mi,ma){return Math.max(mi,Math.min(ma,v))}
+
+// ─── HERO CANVAS (animated sine waves) ───
+(function(){
+  const c = document.getElementById('hero-canvas');
+  const ctx = c.getContext('2d');
+  let W,H;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  window.addEventListener('resize',resize);resize();
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // Draw several animated sine waves with slight transparency
+    const waves = [
+      {freq:0.8, amp:40, speed:0.5, color:'06b6d4'},
+      {freq:1.5, amp:25, speed:0.8, color:'3b82f6'},
+      {freq:2.7, amp:15, speed:1.2, color:'a855f7'},
+      {freq:0.4, amp:55, speed:0.3, color:'06b6d4'},
+    ];
+    waves.forEach(w=>{
+      ctx.beginPath();
+      ctx.strokeStyle = '#'+w.color;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.3;
+      const baseY = H/2 + Math.sin(t*0.3 + w.freq)*20;
+      for(let x=0;x<=W;x+=2){
+        const y = baseY + Math.sin(x*0.02*w.freq + t*w.speed) * w.amp;
+        x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+    t += 0.03;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ─── SINE WAVE EXPLORER ───
+(function(){
+  const c = document.getElementById('sine-canvas');
+  const ctx = c.getContext('2d');
+  let W = c.width = c.clientWidth*2;
+  let H = 400;
+  c.height = H;
+  H /= 2;
+  const freqEl = document.getElementById('sine-freq');
+  const ampEl = document.getElementById('sine-amp');
+  const phaseEl = document.getElementById('sine-phase');
+  const fv = document.getElementById('sine-freq-v');
+  const av = document.getElementById('sine-amp-v');
+  const pv = document.getElementById('sine-phase-v');
+  let animating = false, phase = 0, time = 0;
+  document.getElementById('sine-play').onclick=function(){
+    animating=!animating;this.textContent=animating?'⏸ 暂停':'▶ 动画';
+  };
+  function draw(){
+    const freq = parseFloat(freqEl.value);
+    const amp = parseFloat(ampEl.value)/100 * H*0.8;
+    const phaseDeg = parseFloat(phaseEl.value);
+    if(animating){time+=0.03;phase=time*2;}
+    const totalPhase = (phaseDeg/180*Math.PI) + phase;
+    fv.textContent=freq.toFixed(1);
+    av.textContent=ampEl.value;
+    pv.textContent=phaseDeg;
+    ctx.clearRect(0,0,W,H*2);
+    // Grid
+    ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+    for(let x=0;x<=W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H*2);ctx.stroke()}
+    for(let y=0;y<=H*2;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+    // Center line
+    ctx.strokeStyle='rgba(255,255,255,.08)';ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(W,H);ctx.stroke();
+    // Wave
+    ctx.beginPath();
+    const grad = ctx.createLinearGradient(0,0,W,0);
+    grad.addColorStop(0,'#06b6d4');grad.addColorStop(0.5,'#3b82f6');grad.addColorStop(1,'#a855f7');
+    ctx.strokeStyle=grad;ctx.lineWidth=3;
+    for(let x=0;x<=W;x++){
+      const t = x/W * 4 * Math.PI;
+      const y = H - Math.sin(t*freq + totalPhase) * amp;
+      x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    requestAnimationFrame(draw);
+  }
+  draw();
+  [freqEl,ampEl,phaseEl].forEach(el=>el.addEventListener('input',()=>{if(animating){animating=false;document.getElementById('sine-play').textContent='▶ 动画'}}));
+})();
+
+// ─── TIME-FREQUENCY DEMO ───
+(function(){
+  const c = document.getElementById('tf-canvas');
+  const ctx = c.getContext('2d');
+  let W = c.width = c.clientWidth*2;
+  let H = 600;
+  c.height = H;
+  let showFreq = true;
+  const btn = document.getElementById('tf-mode');
+  btn.onclick=function(){showFreq=!showFreq;this.textContent=showFreq?'🔁 显示时域':'🔁 显示频谱';this.classList.toggle('active')};
+  function draw(){
+    const f1=parseFloat(document.getElementById('tf-f1').value);
+    const a1=parseFloat(document.getElementById('tf-a1').value)/100;
+    const f2=parseFloat(document.getElementById('tf-f2').value);
+    const a2=parseFloat(document.getElementById('tf-a2').value)/100;
+    document.getElementById('tf-f1-v').textContent=f1;
+    document.getElementById('tf-a1-v').textContent=document.getElementById('tf-a1').value;
+    document.getElementById('tf-f2-v').textContent=f2;
+    document.getElementById('tf-a2-v').textContent=document.getElementById('tf-a2').value;
+    ctx.clearRect(0,0,W,H);
+    const midY = H/2;
+    const timeW = W;
+    const freqW = W;
+    if(showFreq){
+      // Spectrum view
+      ctx.font='14px system-ui';ctx.fillStyle='#9ca3af';ctx.textAlign='center';
+      ctx.fillText('频率 (Hz)', freqW/2, 30);
+      // Frequency bars
+      const maxFreq = Math.max(f1,f2)+2;
+      const barW = 40;
+      const gt = ctx.createLinearGradient(freqW/2-60,0,freqW/2+60,0);
+      gt.addColorStop(0,'#06b6d4');gt.addColorStop(1,'#3b82f6');
+      // Bar 1
+      const h1 = a1*200;
+      ctx.fillStyle=gt;
+      ctx.fillRect(freqW/2-30-barW,midY-h1,barW,h1);
+      ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='bold 12px system-ui';ctx.textAlign='center';
+      ctx.fillText(f1+'Hz', freqW/2-30, midY-10);
+      // Bar 2
+      const h2 = a2*200;
+      const gt2 = ctx.createLinearGradient(freqW/2+30-60,0,freqW/2+30+60,0);
+      gt2.addColorStop(0,'#a855f7');gt2.addColorStop(1,'#ec4899');
+      ctx.fillStyle=gt2;
+      ctx.fillRect(freqW/2+30,midY-h2,barW,h2);
+      ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='bold 12px system-ui';
+      ctx.fillText(f2+'Hz', freqW/2+50, midY-10);
+      // Axis
+      ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(freqW/2-120,midY);ctx.lineTo(freqW/2+120,midY);ctx.stroke();
+    } else {
+      // Time domain - show combined wave
+      ctx.font='14px system-ui';ctx.fillStyle='#9ca3af';ctx.textAlign='center';
+      ctx.fillText('时间 t →', timeW/2, 30);
+      // Composite wave
+      ctx.beginPath();
+      for(let x=0;x<=timeW;x++){
+        const t = x/timeW * 4 * Math.PI;
+        const y1 = Math.sin(t*f1) * a1 * 100;
+        const y2 = Math.sin(t*f2) * a2 * 100;
+        const y = midY - (y1 + y2);
+        x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle='#06b6d4';ctx.lineWidth=2.5;ctx.stroke();
+      // Component waves (faint)
+      ctx.beginPath();
+      for(let x=0;x<=timeW;x++){
+        const t = x/timeW * 4 * Math.PI;
+        const y = midY - Math.sin(t*f1) * a1 * 100;
+        x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle='rgba(6,182,212,.2)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
+      ctx.beginPath();
+      for(let x=0;x<=timeW;x++){
+        const t = x/timeW * 4 * Math.PI;
+        const y = midY - Math.sin(t*f2) * a2 * 100;
+        x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle='rgba(168,85,247,.2)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ─── FOURIER SERIES (Square Wave Builder) ───
+(function(){
+  const c = document.getElementById('series-canvas');
+  const ctx = c.getContext('2d');
+  let W = c.width = c.clientWidth*2;
+  let H = 440;
+  c.height = H;
+  const slider = document.getElementById('series-n');
+  const valEl = document.getElementById('series-n-v');
+  document.getElementById('series-reset').onclick=function(){slider.value=1;valEl.textContent='1'};
+  function draw(){
+    const N = parseInt(slider.value);
+    valEl.textContent=N;
+    ctx.clearRect(0,0,W,H);
+    // Labels
+    ctx.font='13px system-ui';ctx.fillStyle='#9ca3af';ctx.textAlign='center';
+    ctx.fillText('时间 t →', W/2, 20);
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='11px system-ui';
+    ctx.fillText('方波近似: '+N+' 个谐波', 120, 16);
+    // Draw component sine waves (faint)
+    const colors = ['#06b6d4','#3b82f6','#8b5cf6','#a855f7','#ec4899','#f43f5e','#f97316'];
+    const ampScale = 80;
+    for(let k=0; k<Math.ceil(N/2); k++){
+      const idx = k*2+1; // 1,3,5,7...
+      const amp = 4/(idx*Math.PI) * ampScale;
+      ctx.beginPath();
+      const col = colors[k%colors.length];
+      ctx.strokeStyle = col+'30';ctx.lineWidth=1;
+      for(let x=0;x<=W;x++){
+        const t = x/W * 4 * Math.PI;
+        const y = H/2 - Math.sin(t*idx) * amp;
+        x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    // Draw composite wave
+    ctx.beginPath();
+    for(let x=0;x<=W;x++){
+      const t = x/W * 4 * Math.PI;
+      let sum = 0;
+      for(let k=0; k<Math.ceil(N/2); k++){
+        const idx = k*2+1;
+        sum += Math.sin(t*idx) * 4/(idx*Math.PI);
+      }
+      const y = H/2 - sum * ampScale;
+      x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle='#06b6d4';ctx.lineWidth=3;ctx.stroke();
+    // Draw target square wave (faint dashed)
+    ctx.beginPath();
+    for(let x=0;x<=W;x++){
+      const t = x/W * 4 * Math.PI;
+      const val = Math.sin(t) >= 0 ? 1 : -1;
+      const y = H/2 - val * ampScale;
+      x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;ctx.setLineDash([5,5]);ctx.stroke();ctx.setLineDash([]);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ─── EPICYCLE VISUALIZATION ───
+(function(){
+  const canvas = document.getElementById('epicycle-canvas');
+  const drawCanvas = document.getElementById('draw-canvas');
+  const ctx = canvas.getContext('2d');
+  const dctx = drawCanvas.getContext('2d');
+  let W=canvas.width=canvas.clientWidth*2;
+  let H=canvas.height=800;
+  const dW=drawCanvas.width=drawCanvas.clientWidth*2||400;
+  const dH=drawCanvas.height=400;
+
+  let points = [];
+  let drawing = false;
+  let animating = false;
+  let animId = null;
+  let t = 0;
+  let epiPath = [];
+  let fourierCoefs = [];
+
+  // Draw on mini canvas
+  drawCanvas.addEventListener('mousedown',e=>{drawing=true;points=[];dctx.fillStyle='#0a0e1a';dctx.fillRect(0,0,dW,dH)});
+  window.addEventListener('mouseup',()=>{drawing=false;processDrawing()});
+  drawCanvas.addEventListener('mousemove',e=>{
+    if(!drawing)return;
+    const r = drawCanvas.getBoundingClientRect();
+    const x = (e.clientX - r.left)/r.width * dW;
+    const y = (e.clientY - r.top)/r.height * dH;
+    points.push({x,y});
+    dctx.fillStyle='#06b6d4';dctx.beginPath();dctx.arc(x,y,3,0,Math.PI*2);dctx.fill();
+  });
+  // Touch support
+  drawCanvas.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;points=[];dctx.fillStyle='#0a0e1a';dctx.fillRect(0,0,dW,dH)});
+  drawCanvas.addEventListener('touchend',e=>{e.preventDefault();drawing=false;processDrawing()});
+  drawCanvas.addEventListener('touchmove',e=>{
+    e.preventDefault();if(!drawing)return;
+    const touch = e.touches[0];const r=drawCanvas.getBoundingClientRect();
+    const x=(touch.clientX-r.left)/r.width*dW;const y=(touch.clientY-r.top)/r.height*dH;
+    points.push({x,y});dctx.fillStyle='#06b6d4';dctx.beginPath();dctx.arc(x,y,3,0,Math.PI*2);dctx.fill();
+  });
+
+  document.getElementById('draw-clear').onclick=function(){
+    points=[];dctx.fillStyle='#0a0e1a';dctx.fillRect(0,0,dW,dH);
+    stopAnim();
+  };
+  document.getElementById('draw-apply').onclick=function(){
+    if(points.length<5){alert('请先画一些点');return}
+    processDrawing();
+    startAnim();
+  };
+
+  // Presets
+  function setPreset(pts){
+    points=pts;dctx.fillStyle='#0a0e1a';dctx.fillRect(0,0,dW,dH);
+    pts.forEach(p=>{dctx.fillStyle='#06b6d4';dctx.beginPath();dctx.arc(p.x,p.y,3,0,Math.PI*2);dctx.fill()});
+    processDrawing();
+  }
+  document.getElementById('epi-preset1').onclick=function(){
+    const pts=[];
+    // Simple pencil/line shape
+    for(let i=0;i<30;i++){
+      const t=i/30;
+      pts.push({x:dW*0.2+dW*0.6*t, y:dH*0.3+dH*0.4*Math.sin(t*Math.PI*4)});
+    }
+    setPreset(pts);
+  };
+  document.getElementById('epi-preset2').onclick=function(){
+    const pts=[];const cx=dW/2,cy=dH/2,R=Math.min(dW,dH)*0.35;
+    for(let i=0;i<80;i++){
+      const a=i/80*Math.PI*2;
+      const r=R * (0.8 + 0.2*Math.sin(a*3));
+      pts.push({x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r});
+    }
+    setPreset(pts);
+  };
+  document.getElementById('epi-preset3').onclick=function(){
+    const pts=[];const cx=dW/2,cy=dH/2,R=Math.min(dW,dH)*0.3;
+    for(let i=0;i<100;i++){
+      const t=i/100;
+      const a=t*Math.PI*6;const r=R*(1-t*0.7);
+      pts.push({x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r});
+    }
+    setPreset(pts);
+  };
+
+  function processDrawing(){
+    if(points.length<3)return;
+    // Normalize points to center
+    const cx=dW/2,cy=dH/2;
+    const norm = points.map(p=>({x:p.x-cx, y:p.y-cy}));
+    const N = norm.length;
+    // DFT
+    fourierCoefs = [];
+    for(let k=-Math.floor(N/2); k<=Math.floor(N/2); k++){
+      let sumX=0,sumY=0;
+      for(let n=0;n<N;n++){
+        const angle = -2*Math.PI*k*n/N;
+        sumX += norm[n].x * Math.cos(angle) - norm[n].y * Math.sin(angle);
+        sumY += norm[n].x * Math.sin(angle) + norm[n].y * Math.cos(angle);
+      }
+      const amp = Math.sqrt(sumX*sumX + sumY*sumY)/N;
+      const phase = Math.atan2(sumY, sumX);
+      const freq = k;
+      if(amp>0.5) fourierCoefs.push({freq,amp,phase,re:sumX/N,im:sumY/N});
+    }
+    // Sort by amplitude descending
+    fourierCoefs.sort((a,b)=>b.amp-a.amp);
+    // Update slider max
+    const maxN = Math.min(fourierCoefs.length,80);
+    document.getElementById('epi-n').max = maxN;
+    document.getElementById('epi-n').value = Math.min(20, maxN);
+    document.getElementById('epi-n-v').textContent = Math.min(20, maxN);
+  }
+
+  function stopAnim(){
+    animating=false;if(animId){cancelAnimationFrame(animId);animId=null}
+    document.getElementById('epi-play').style.display='';document.getElementById('epi-stop').style.display='none';
+  }
+  function startAnim(){
+    if(fourierCoefs.length<2)return;
+    stopAnim();
+    t=0;epiPath=[];
+    animating=true;
+    document.getElementById('epi-play').style.display='none';document.getElementById('epi-stop').style.display='';
+    const slider = document.getElementById('epi-n');
+    const nv = document.getElementById('epi-n-v');
+    function animate(){
+      if(!animating)return;
+      ctx.fillStyle='rgba(10,14,26,.1)';
+      ctx.fillRect(0,0,W,H);
+      const useN = parseInt(slider.value);
+      const cx=W/2, cy=H/2;
+      const scale = Math.min(W,H)*0.35 / (Math.max(...fourierCoefs.slice(0,3).map(c=>c.amp))||1);
+      let x=cx, y=cy;
+      // Draw circles
+      for(let i=0;i<Math.min(useN,fourierCoefs.length);i++){
+        const c = fourierCoefs[i];
+        const angle = c.freq*t*2*Math.PI/fourierCoefs.length + c.phase;
+        const r = c.amp * scale * 0.8;
+        const nx = x + Math.cos(angle)*r;
+        const ny = y + Math.sin(angle)*r;
+        // Circle
+        ctx.beginPath();ctx.arc(x,y,Math.abs(r),0,Math.PI*2);
+        ctx.strokeStyle=`hsla(${i*40+200},70%,60%,.25)`;ctx.lineWidth=1;ctx.stroke();
+        // Radius line
+        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(nx,ny);
+        ctx.strokeStyle=`hsla(${i*40+200},70%,60%,.35)`;ctx.lineWidth=1.5;ctx.stroke();
+        // Dot at center
+        ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.2)';ctx.fill();
+        x=nx;y=ny;
+      }
+      // Final point
+      ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
+      ctx.fillStyle='#06b6d4';ctx.fill();
+      // Path
+      epiPath.push({x,y});
+      if(epiPath.length>300) epiPath.shift();
+      ctx.beginPath();
+      for(let i=0;i<epiPath.length;i++){
+        const p=epiPath[i];
+        i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);
+      }
+      ctx.strokeStyle='#06b6d4';ctx.lineWidth=2.5;ctx.stroke();
+      t++;
+      nv.textContent=useN;
+      animId=requestAnimationFrame(animate);
+    }
+    animate();
+  }
+  document.getElementById('epi-play').onclick=startAnim;
+  document.getElementById('epi-stop').onclick=stopAnim;
+
+  // Initial preset
+  setTimeout(()=>{
+    const pts=[];const cx=dW/2,cy=dH/2,R=Math.min(dW,dH)*0.35;
+    for(let i=0;i<80;i++){
+      const a=i/80*Math.PI*2;
+      const r=R * (0.8+0.2*Math.sin(a*3));
+      pts.push({x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r});
+    }
+    setPreset(pts);
+  },500);
+})();
+
+// ─── Nav highlight on scroll ───
+(function(){
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        links.forEach(l=>l.classList.remove('active'));
+        const id = e.target.id;
+        links.forEach(l=>{if(l.getAttribute('href')==='#'+id)l.classList.add('active')});
+      }
+    });
+  },{rootMargin:'-50% 0px -50% 0px'});
+  sections.forEach(s=>observer.observe(s));
+})();
+
+// ─── Responsive canvas reflow ───
+window.addEventListener('resize',()=>{
+  // Trigger redraw by dispatching input events on active sliders
+  document.querySelectorAll('input[type="range"]').forEach(el=>el.dispatchEvent(new Event('input')));
+});
+</script>
+</body>
+</html>

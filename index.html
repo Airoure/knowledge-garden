@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 知识花园</title>
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg-card: #111827;
+  --bg-elevated: #1a2236;
+  --text: #e5e7eb;
+  --text-dim: #9ca3af;
+  --text-muted: #6b7280;
+  --accent: #06b6d4;
+  --accent2: #3b82f6;
+  --amber: #f59e0b;
+  --green: #10b981;
+  --pink: #ec4899;
+  --purple: #a855f7;
+  --border: #1f2937;
+  --radius: 12px;
+  --font: system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  min-height:100vh;
+}
+
+/* ── Hero ── */
+.hero{
+  min-height:50vh;
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;
+  padding:60px 24px 40px;
+  position:relative;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 40%, rgba(6,182,212,.06) 0, transparent),
+    radial-gradient(ellipse 500px 500px at 80% 30%, rgba(168,85,247,.04) 0, transparent),
+    radial-gradient(ellipse 400px 300px at 50% 80%, rgba(245,158,11,.03) 0, transparent),
+    var(--bg);
+}
+.hero h1{
+  font-size:clamp(2rem,5vw,3.5rem);
+  font-weight:800;
+  background:linear-gradient(135deg,#06b6d4,#3b82f6,#a855f7);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:8px;
+}
+.hero .sub{
+  color:var(--text-dim);
+  font-size:clamp(.95rem,2vw,1.2rem);
+  max-width:500px;
+  margin-bottom:4px;
+}
+.hero .count{
+  color:var(--text-muted);
+  font-size:14px;
+  margin-top:12px;
+}
+.hero .count span{color:var(--accent);font-weight:700;font-size:1.2rem}
+
+/* ── Cards grid ── */
+.grid{
+  max-width:900px;
+  margin:0 auto;
+  padding:0 24px 60px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:16px;
+}
+
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+  transition:all .25s;
+  text-decoration:none;
+  color:inherit;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  opacity:0;
+  transition:opacity .25s;
+}
+.card:hover{
+  border-color:rgba(6,182,212,.4);
+  transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(0,0,0,.4);
+}
+.card:hover::before{opacity:1}
+
+.card .icon{
+  font-size:2rem;
+  margin-bottom:10px;
+  display:block;
+}
+.card h2{
+  font-size:1.1rem;
+  font-weight:600;
+  margin-bottom:6px;
+  color:#fff;
+}
+.card p{
+  font-size:.88rem;
+  color:var(--text-dim);
+  flex:1;
+  margin-bottom:12px;
+}
+.card .meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:auto;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+}
+.card .tag{
+  font-size:11px;
+  padding:2px 8px;
+  border-radius:4px;
+  background:var(--bg-elevated);
+  color:var(--text-muted);
+}
+.card .tag.live{
+  background:rgba(16,185,129,.1);
+  color:var(--green);
+}
+.card .tag.draft{
+  background:rgba(245,158,11,.1);
+  color:var(--amber);
+}
+.card .port{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--accent);
+}
+.card .arrow{
+  font-size:18px;
+  color:var(--text-muted);
+  transition:transform .2s,color .2s;
+}
+.card:hover .arrow{
+  transform:translateX(4px);
+  color:var(--accent);
+}
+
+/* ── Empty state ── */
+.empty{
+  text-align:center;
+  padding:60px 24px;
+  color:var(--text-muted);
+}
+.empty .big{font-size:3rem;margin-bottom:12px;display:block}
+.empty h3{margin-bottom:8px;color:var(--text-dim)}
+
+/* ── Footer ── */
+footer{
+  text-align:center;
+  padding:24px;
+  color:var(--text-muted);
+  font-size:13px;
+  border-top:1px solid var(--border);
+}
+footer a{color:var(--accent);text-decoration:none}
+
+/* ── Responsive ── */
+@media(max-width:500px){
+  .grid{grid-template-columns:1fr}
+}
+
+/* ── 分区：考公专区 / 其他站点 ── */
+.zone-head{
+  grid-column:1/-1;
+  font-size:17px;font-weight:700;color:#fff;
+  display:flex;align-items:baseline;gap:12px;
+  margin-top:4px;
+}
+.zone-head .zone-sub{font-size:12px;font-weight:400;color:var(--text-muted)}
+.zone-head::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(6,182,212,.5),transparent)}
+.more-zone{grid-column:1/-1;margin-top:14px}
+.more-zone summary{
+  cursor:pointer;list-style:none;
+  color:var(--text-dim);font-size:13px;
+  padding:12px 18px;border:1px dashed var(--border);border-radius:var(--radius);
+  background:var(--bg-card);
+  transition:all .2s;
+}
+.more-zone summary::-webkit-details-marker{display:none}
+.more-zone summary:hover{color:var(--accent);border-color:rgba(6,182,212,.4)}
+.more-zone[open] summary{color:var(--text-muted);border-style:solid}
+.more-zone .inner-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:16px;padding-top:16px;
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ HERO ════════ -->
+<header class="hero">
+  <h1>📚 知识花园</h1>
+  <p class="sub">交互式学习网站 · 从直觉到掌握</p>
+  <p class="count">共收录 <span id="site-count">0</span> 个站点</p>
+</header>
+
+<!-- ════════ GRID ════════ -->
+<div class="grid" id="sites-grid"></div>
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <p>知识花园 · 持续生长中</p>
+  <p><a href="https://beian.miit.gov.cn/" target="_blank">闽ICP备2026030114号</a></p>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════
+//  站点配置 — 新增站点在这里添加一项即可
+// ═══════════════════════════════════════════════
+const sites = [
+  // ── 考公备考专区（group: 'gongkao'）──
+  {
+    group: 'gongkao',
+    icon: '⚡',
+    title: '公考速算训练营',
+    desc: '资料分析速算方法课 — 直除、百化分、基期、比重、尾数法、分数比较：先讲透方法，再配真题难度练习',
+    path: "/susuan",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'gongkao',
+    icon: '🧮',
+    title: '数量关系方法营',
+    desc: '数量关系方法课 — 代入排除、方程、赋值、比例、行程、利润、排列组合：先讲透套路，再配真题难度练习',
+    path: "/num",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'gongkao',
+    icon: '🧠',
+    title: '判断推理方法营',
+    desc: '判断推理方法课 — 图形、定义、类比、翻译、真假与论证：程序化出图找规律，先讲透套路再配真题练习',
+    path: "/pd",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'gongkao',
+    icon: '💬',
+    title: '言语理解方法营',
+    desc: '言语理解与表达方法课 — 关联词语境、词义辨析、主旨概括、意图细节、语句排序与填空：先讲透套路，再配真题练习',
+    path: "/yuyin",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'gongkao',
+    icon: '📕',
+    title: '政治理论学习营',
+    desc: '政治理论 — 马原、毛思想、中特理论、习思想、党史、数字考点：遗忘曲线背诵卡片 + 选择题巩固 + 速查表',
+    path: "/zzll",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'gongkao',
+    icon: '🎮',
+    title: '数感道场 · 考公速算',
+    desc: '速算训练游戏 — 实时对战、限时答题、速算练习（React + Socket.io）',
+    path: "/count-game",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'gongkao',
+    icon: '📓',
+    title: '公考笔记本',
+    desc: '错题本 + 速算技巧笔记 — 错题记录、图片留存、技巧整理',
+    path: "/gongkao",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  // ── 其他站点（group: 'more'，首页默认收起）──
+  {
+    group: 'more',
+    icon: '🔮',
+    title: '真空二极管 · 交互式科普',
+    desc: '热电子发射、单向导电、伏安特性、整流演示 — 可交互的电子管入门课',
+    path: "/vacuum-diode",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'more',
+    icon: '🔐',
+    title: 'HMAC 学习笔记',
+    desc: '基于哈希的消息认证码 — 算法原理、四属性、防重放、API 签名实战、数字签名对比',
+    path: "/hmac-notes",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'more',
+    icon: '📖',
+    title: 'OpenAI Cookbook 学习路线',
+    desc: '从概念到架构，6 阶段掌握 OpenAI API 生态 — 提示工程、RAG、Agent、评估',
+    path: "/openai-cookbook-roadmap",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'more',
+    icon: '🟢',
+    title: 'Node.js 后端学习路线',
+    desc: '一个月从零到完整后端服务 — Express + TS + Prisma + 认证 + WebSocket + Docker 部署',
+    path: "/nodejs-roadmap",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  {
+    group: 'more',
+    icon: '〰️',
+    title: '傅里叶变换学习指南',
+    desc: '从直觉到掌握 — 正弦波、时域频域、傅里叶级数、外摆线可视化、实际应用',
+    path: "/fourier",
+    tag: '已上线',
+    tagClass: 'live'
+  },
+  // ── 新增站点格式 ──
+  // {
+  //   group: 'gongkao',    // 或 'more'（默认收起）
+  //   icon: '📘',
+  //   title: '你的站点名称',
+  //   desc: '简短描述',
+  //   path: "/你的路径",
+  //   tag: '已上线',       // 或 '建设中'
+  //   tagClass: 'live'    // 或 'draft'
+  // },
+];
+
+// ════════ RENDER ════════
+function card(s){
+  return `
+    <a class="card" href="${s.path}" target="_blank">
+      <span class="icon">${s.icon}</span>
+      <h2>${s.title}</h2>
+      <p>${s.desc}</p>
+      <div class="meta">
+        <span class="tag ${s.tagClass}">${s.tag}</span>
+        <span class="port">${s.path}</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>`;
+}
+
+function render(){
+  const grid = document.getElementById('sites-grid');
+  const count = document.getElementById('site-count');
+  count.textContent = sites.length;
+
+  if(sites.length === 0){
+    grid.innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <span class="big">🌱</span>
+        <h3>花园还是空的</h3>
+        <p>在下方 JS 中添加第一个站点吧</p>
+      </div>
+    `;
+    return;
+  }
+
+  const gk = sites.filter(s => s.group === 'gongkao');
+  const rest = sites.filter(s => s.group !== 'gongkao');
+
+  grid.innerHTML = `
+    <div class="zone-head">🎯 考公备考专区<span class="zone-sub">方法课 · 对战练习 · 错题管理</span></div>
+    ${gk.map(card).join('')}
+    ${rest.length ? `
+    <details class="more-zone">
+      <summary>🗂 其他站点（${rest.length} 个）— 默认收起，点击展开</summary>
+      <div class="inner-grid">${rest.map(card).join('')}</div>
+    </details>` : ''}
+`;
+}
+
+render();
+</script>
+</body>
+</html>

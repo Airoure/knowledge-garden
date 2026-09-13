@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Node.js 后端学习路线</title>
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg-card: #111827;
+  --bg-elevated: #1a2236;
+  --text: #e5e7eb;
+  --text-dim: #9ca3af;
+  --text-muted: #6b7280;
+  --accent: #06b6d4;
+  --accent2: #3b82f6;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --pink: #ec4899;
+  --purple: #a855f7;
+  --red: #ef4444;
+  --border: #1f2937;
+  --radius: 12px;
+  --font: system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono: 'JetBrains Mono','Fira Code',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7}
+.header{background:radial-gradient(ellipse 600px 300px at 20% 20%,rgba(32,224,132,.08) 0,transparent),radial-gradient(ellipse 500px 400px at 80% 10%,rgba(6,182,212,.06) 0,transparent),var(--bg);border-bottom:1px solid var(--border);padding:40px 24px 32px;text-align:center}
+.header h1{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;background:linear-gradient(135deg,#10b981,#06b6d4,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.header .sub{color:var(--text-dim);font-size:1rem;max-width:560px;margin:0 auto 8px}
+.header .meta-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:16px;font-size:14px;color:var(--text-muted)}
+.header .meta-bar span{background:var(--bg-card);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+.header .meta-bar .val{color:var(--accent);font-weight:600}
+.container{max-width:880px;margin:0 auto;padding:32px 20px 80px}
+.section{margin-bottom:48px}
+.section h2{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.section h2 .emoji{font-size:1.2rem}
+.section h3{font-size:1.05rem;font-weight:600;color:var(--accent);margin:20px 0 10px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+.info-item{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.info-item .label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.info-item .value{font-size:14px;color:var(--text)}
+.badge{display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:600}
+.badge.verified{background:rgba(16,185,129,.12);color:var(--green)}
+.badge.self{background:rgba(245,158,11,.12);color:var(--amber)}
+.badge.unknown{background:rgba(239,68,68,.12);color:var(--red)}
+.badge.planned{background:rgba(59,130,246,.15);color:var(--accent2)}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th{background:var(--bg-elevated);color:var(--text-dim);font-weight:600;text-align:left;padding:10px 12px;border:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+td{padding:10px 12px;border:1px solid var(--border);background:var(--bg-card);vertical-align:top;line-height:1.6}
+tr:hover td{background:var(--bg-elevated)}
+.phase{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden}
+.phase-header{padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.phase-header .phase-title{font-size:1rem;font-weight:600;color:#fff}
+.phase-header .phase-title span{color:var(--accent);font-size:.85rem;margin-left:8px}
+.phase-header .phase-time{font-size:13px;color:var(--text-dim);background:var(--bg-elevated);padding:3px 10px;border-radius:12px}
+.phase.current .phase-header{border-left:3px solid var(--accent);background:linear-gradient(90deg,rgba(6,182,212,.05),transparent)}
+.phase-body{padding:0 20px 16px}
+.day-plan{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:12px 0}
+.day-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:14px}
+.day-card .day{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.day-card .content{font-size:13px;color:var(--text-dim);line-height:1.5}
+.day-card .content strong{color:var(--text)}
+.day-card .time{font-size:12px;color:var(--text-muted);margin-top:8px;display:inline-block;background:var(--bg-card);padding:2px 8px;border-radius:4px}
+.risk{background:var(--bg-card);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:14px;margin-bottom:10px}
+.risk .risk-title{font-weight:600;color:var(--amber);margin-bottom:4px}
+.risk .risk-desc{font-size:13px;color:var(--text-dim);line-height:1.5}
+.checkpoint{display:flex;align-items:flex-start;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:8px}
+.checkpoint .dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.checkpoint .dot.d1{background:var(--accent)}
+.checkpoint .dot.d2{background:var(--green)}
+.checkpoint .dot.d3{background:var(--amber)}
+.checkpoint .dot.d4{background:var(--pink)}
+.checkpoint .dot.d5{background:var(--purple)}
+.checkpoint .cp-content{flex:1}
+.checkpoint .cp-content .cp-title{font-weight:600;color:#fff;font-size:14px}
+.checkpoint .cp-content .cp-desc{font-size:13px;color:var(--text-dim);margin-top:2px}
+.checkpoint .cp-content .cp-trigger{font-size:12px;color:var(--text-muted);margin-top:4px}
+.cta-box{background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(59,130,246,.05));border:1px solid rgba(6,182,212,.2);border-radius:var(--radius);padding:24px;text-align:center;margin:32px 0}
+.cta-box .cta-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:8px}
+.cta-box pre{background:var(--bg);padding:16px;border-radius:8px;text-align:left;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--green);overflow-x:auto;margin-top:12px;border:1px solid var(--border)}
+.cta-box .note{font-size:13px;color:var(--text-dim);margin-top:12px}
+ul{list-style:none;padding:0}
+ul li{padding:6px 0 6px 20px;position:relative;font-size:14px;color:var(--text-dim);line-height:1.5}
+ul li strong{color:var(--text)}
+ul li::before{content:'';position:absolute;left:0;top:13px;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.5}
+.footer{text-align:center;padding:24px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border)}
+.footer .back{color:var(--accent);text-decoration:none}
+.footer .back:hover{text-decoration:underline}
+@media(max-width:600px){.info-grid,.day-plan{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="header">
+  <h1>🟢 Node.js 后端学习路线</h1>
+  <p class="sub">一个月从零到完整后端服务 · API · 数据库 · 认证 · 实时通信 · 部署</p>
+  <div class="meta-bar">
+    <span>📅 <span class="val">8月</span></span>
+    <span>⏱ <span class="val">~124h</span></span>
+    <span>🎯 <span class="val">31天</span></span>
+    <span>🏗️ <span class="val">Express + TS + Prisma</span></span>
+    <span>📦 <span class="val">Docker + Nginx</span></span>
+  </div>
+</header>
+<div class="container">
+  <div class="section">
+    <h2><span class="emoji">🎯</span> 目标卡</h2>
+    <div class="info-grid">
+      <div class="info-item"><div class="label">目标类型</div><div class="value">技术项目</div></div>
+      <div class="info-item"><div class="label">截止</div><div class="value">2026-08-31</div></div>
+      <div class="info-item"><div class="label">每日投入</div><div class="value">~4 小时</div></div>
+      <div class="info-item"><div class="label">技术栈</div><div class="value">Express · TS · Prisma · PostgreSQL · Socket.IO · Docker</div></div>
+    </div>
+    <h3>第一性原理摘要</h3>
+    <ul>
+      <li><strong>本质</strong>：通过手工构建完整后端建立系统认知</li>
+      <li><strong>关键变量</strong>：项目结构 → 数据建模 → 认证 → 异常校验 → 实时通信 → 部署</li>
+      <li><strong>不可绕过</strong>：Express 中间件、关系型数据、JWT、WebSocket、错误处理、Docker</li>
+      <li><strong>假设</strong>：四模块按 CRUD → 认证 → 文件 → 实时 → 订单递进</li>
+      <li><strong>最小闭环</strong>：首日搭一个 2-路由的 Express+TS+Prisma 项目跑通</li>
+    </ul>
+    <h3>起点诊断</h3>
+    <table>
+      <tr><th>状态</th><th>内容</th></tr>
+      <tr><td><span class="badge verified">已验证</span></td><td>Express 基础路由/中间件、Prisma CRUD</td></tr>
+      <tr><td><span class="badge verified">已验证</span></td><td>接触过 Docker、Nginx（粗浅）</td></tr>
+      <tr><td><span class="badge self">自述</span></td><td>TypeScript 有一定了解</td></tr>
+      <tr><td><span class="badge unknown">待验证</span></td><td>多模块项目结构、错误处理体系、认证完整流程、WebSocket</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">🎯</span> 三层成果</h2>
+    <table>
+      <tr><th>层级</th><th>内容</th></tr>
+      <tr><td><span class="badge verified">最小可达</span></td><td>跑通 CRUD + 基础认证 + 简单部署的 API</td></tr>
+      <tr><td><span class="badge planned">已确认目标</span></td><td>四模块完整后端：博客CRUD、认证、文件上传、实时聊天、订单API、Docker/Nginx部署</td></tr>
+      <tr><td><span class="badge self">可选扩展</span></td><td>单元测试、CI/CD、日志监控体系</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">🔗</span> 能力链与路线总览</h2>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:20px;font-family:var(--mono);font-size:13px;line-height:2.2;overflow-x:auto">
+      <div style="color:var(--green)">项目骨架</div>
+      <div style="color:var(--text-dim)">   └─ TS 配置 · 目录结构 · 错误处理框架</div>
+      <div style="color:var(--accent);margin-top:4px">Blog CRUD</div>
+      <div style="color:var(--text-dim)">   └─ Prisma 建模 · RESTful CRUD · Zod 校验</div>
+      <div style="color:var(--amber);margin-top:4px">用户认证</div>
+      <div style="color:var(--text-dim)">   └─ JWT 签发/验证 · bcrypt · Auth 中间件</div>
+      <div style="color:var(--pink);margin-top:4px">文件上传</div>
+      <div style="color:var(--text-dim)">   └─ Multer · 文件校验 · 静态服务 · Nginx</div>
+      <div style="color:var(--purple);margin-top:4px">实时聊天</div>
+      <div style="color:var(--text-dim)">   └─ Socket.IO · 房间 · 消息持久化</div>
+      <div style="color:var(--red);margin-top:4px">订单 API</div>
+      <div style="color:var(--text-dim)">   └─ 状态机 · 事务 · Swagger 文档</div>
+      <div style="color:var(--green);margin-top:4px">部署上线</div>
+      <div style="color:var(--text-dim)">   └─ Docker Compose · Nginx 反代 · PM2</div>
+    </div>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">📦</span> 项目模块拆解</h2>
+    <table>
+      <tr><th>模块</th><th>知识要点</th><th>产出</th><th>验收</th></tr>
+      <tr><td style="color:var(--accent);font-weight:600">博客 CRUD</td><td>Prisma 建模、REST、Zod 校验</td><td>5 个端点</td><td>curl 全测</td></tr>
+      <tr><td style="color:var(--amber);font-weight:600">用户认证</td><td>JWT、bcrypt、Bearer Token</td><td>注册登录 + 保护</td><td>无 Token 拒绝</td></tr>
+      <tr><td style="color:var(--pink);font-weight:600">文件上传</td><td>Multer、类型校验、静态服务</td><td>上传/下载</td><td>上传可下载</td></tr>
+      <tr><td style="color:var(--purple);font-weight:600">实时聊天</td><td>Socket.IO、房间、入库</td><td>群聊+历史</td><td>多客户端</td></tr>
+      <tr><td style="color:var(--red);font-weight:600">订单 API</td><td>状态机、事务</td><td>下单/支付</td><td>状态正确</td></tr>
+      <tr><td style="color:var(--green);font-weight:600">部署</td><td>Docker、Compose、Nginx、PM2</td><td>一键启动</td><td>compose up</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">⏱</span> 时间计算</h2>
+    <div class="info-grid">
+      <div class="info-item"><div class="label">总可用</div><div class="value">124h</div></div>
+      <div class="info-item"><div class="label">计划使用</div><div class="value">102h（82%）</div></div>
+      <div class="info-item"><div class="label">缓冲</div><div class="value" style="color:var(--amber)">22h（18%）</div></div>
+      <div class="info-item"><div class="label">复习占比</div><div class="value">~15h（15%）</div></div>
+    </div>
+    <table>
+      <tr><th>阶段</th><th>时间</th><th>占比</th></tr>
+      <tr><td>Phase 1 项目基础 + 博客 CRUD</td><td>24h</td><td>23%</td></tr>
+      <tr><td>Phase 2 认证 + 文件上传</td><td>26h</td><td>26%</td></tr>
+      <tr><td>Phase 3 实时聊天 + 订单 API</td><td>28h</td><td>27%</td></tr>
+      <tr><td>Phase 4 打磨 + 部署</td><td>24h</td><td>24%</td></tr>
+      <tr><td style="font-weight:600;color:var(--accent)">合计</td><td>102h</td><td>100%</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">🗺️</span> 主路线</h2>
+    <div class="phase current">
+      <div class="phase-header">
+        <div class="phase-title">Phase 1：项目基础 + 博客 CRUD <span>📌 当前阶段</span></div>
+        <div class="phase-time">24h · 置信度: 中</div>
+      </div>
+      <div class="phase-body">
+        <table>
+          <tr><th>主题</th><th>内容</th><th>产出</th><th>验收</th></tr>
+          <tr><td>🏗️ 项目脚手架</td><td>Express+TS 初始化、目录结构</td><td>GET /health</td><td>curl 200</td></tr>
+          <tr><td>🗄️ Prisma 建模</td><td>Post 模型 schema、迁移</td><td>posts 表创建</td><td>Studio 可见</td></tr>
+          <tr><td>🔧 CRUD 路由</td><td>5 个端点 + Zod 校验</td><td>全 CRUD</td><td>curl 全量</td></tr>
+          <tr><td>🚨 错误处理</td><td>AppError、asyncWrapper</td><td>统一错误格式</td><td>格式统一</td></tr>
+          <tr><td>🐳 Docker 化</td><td>Dockerfile + compose</td><td>容器化运行</td><td>compose up</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-header"><div class="phase-title">Phase 2：用户认证 + 文件上传</div><div class="phase-time">26h · 中</div></div>
+      <div class="phase-body">
+        <table><tr><th>主题</th><th>时间</th><th>产出</th></tr>
+        <tr><td>JWT 注册/登录</td><td>8h</td><td>auth 完整接口</td></tr>
+        <tr><td>Auth 中间件保护</td><td>4h</td><td>受保护路由</td></tr>
+        <tr><td>用户-文章关联</td><td>4h</td><td>文章带作者</td></tr>
+        <tr><td>文件上传</td><td>6h</td><td>上传/下载</td></tr>
+        <tr><td>Nginx 反代基础</td><td>4h</td><td>nginx.conf</td></tr>
+        </table>
+        <div style="margin-top:10px;font-size:13px;color:var(--text-muted)">⏳ 进入条件：Phase 1 通过验收</div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-header"><div class="phase-title">Phase 3：实时聊天 + 订单 API</div><div class="phase-time">28h · 中低</div></div>
+      <div class="phase-body">
+        <table><tr><th>主题</th><th>时间</th><th>产出</th></tr>
+        <tr><td>Socket.IO 事件通信</td><td>6h</td><td>实时消息</td></tr>
+        <tr><td>房间+消息入库</td><td>6h</td><td>历史回溯</td></tr>
+        <tr><td>订单模型+状态机</td><td>8h</td><td>CRUD+状态</td></tr>
+        <tr><td>事务+Zod</td><td>4h</td><td>原子性</td></tr>
+        <tr><td>Swagger 文档</td><td>4h</td><td>Swagger UI</td></tr>
+        </table>
+        <div style="margin-top:10px;font-size:13px;color:var(--text-muted)">⏳ 进入条件：Phase 2 通过验收</div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-header"><div class="phase-title">Phase 4：打磨 + 部署上线</div><div class="phase-time">24h · 中低</div></div>
+      <div class="phase-body">
+        <table><tr><th>主题</th><th>时间</th><th>产出</th></tr>
+        <tr><td>错误统一+Winston 日志</td><td>4h</td><td>统一响应</td></tr>
+        <tr><td>代码梳理+类型补全</td><td>4h</td><td>消除 any</td></tr>
+        <tr><td>Docker 多阶段构建</td><td>6h</td><td>优化 Dockerfile</td></tr>
+        <tr><td>Nginx 反代+SSL</td><td>4h</td><td>生产级配置</td></tr>
+        <tr><td>PM2 进程管理</td><td>2h</td><td>ecosystem.config</td></tr>
+        <tr><td>部署文档+验收</td><td>4h</td><td>完整步骤</td></tr>
+        </table>
+        <div style="margin-top:10px;font-size:13px;color:var(--text-muted)">⏳ 进入条件：Phase 3 通过验收</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">📅</span> 首周行动表（8/1 - 8/7）</h2>
+    <div class="day-plan">
+      <div class="day-card"><div class="day">Day 1 · 脚手架</div><div class="content"><strong>初始化 Express + TS</strong>，配 ts-node-dev，建目录结构</div><div class="time">4h · GET /health</div></div>
+      <div class="day-card"><div class="day">Day 2 · 建模</div><div class="content"><strong>Prisma</strong> + Post 模型 · Router + GET /posts</div><div class="time">4h · Studio 可见表</div></div>
+      <div class="day-card"><div class="day">Day 3 · CRUD</div><div class="content"><strong>完整 CRUD</strong> · POST+GET/:id · Zod 校验</div><div class="time">4h · 全端点跑通</div></div>
+      <div class="day-card"><div class="day">Day 4 · 错误处理</div><div class="content"><strong>全局错误中间件</strong> · AppError + asyncWrapper</div><div class="time">4h · 格式统一</div></div>
+      <div class="day-card"><div class="day">Day 5 · Docker</div><div class="content"><strong>Dockerfile</strong> · docker-compose（app+postgres）</div><div class="time">4h · compose up</div></div>
+      <div class="day-card"><div class="day">Day 6 · 验收</div><div class="content">迁移集成启动 · <strong>全量 curl 测试</strong></div><div class="time">4h · 逐项通过</div></div>
+      <div class="day-card"><div class="day">Day 7 · 回顾</div><div class="content"><strong>知识梳理</strong> · 脑图 + 踩坑记录</div><div class="time">4h · 能讲清请求生命周期</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">🎯</span> 迁移 · 反馈 · 保持</h2>
+    <table>
+      <tr><th>能力</th><th>迁移</th><th>反馈</th><th>7天</th><th>30天</th></tr>
+      <tr><td>Express 中间件</td><td>变式</td><td>Postman</td><td>独立建项目</td><td>新场景方案</td></tr>
+      <tr><td>Prisma 建模</td><td>变式</td><td>Studio</td><td>新模型设计</td><td>多表关联</td></tr>
+      <tr><td>JWT 认证</td><td>独立→变式</td><td>curl</td><td>手写流程</td><td>refresh token</td></tr>
+      <tr><td>Socket.IO</td><td>独立</td><td>多客户端</td><td>聊天室</td><td>已读未读</td></tr>
+      <tr><td>Docker+Nginx</td><td>真实迁移</td><td>浏览器</td><td>compose</td><td>真实服务器</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">⚠️</span> 风险与预警</h2>
+    <div class="risk"><div class="risk-title">🚧 TypeScript 卡住进度</div><div class="risk-desc"><strong>触发</strong>：类型报错1h+<br><strong>应对</strong>：临时切 .js</div></div>
+    <div class="risk"><div class="risk-title">🐌 模块超预估</div><div class="risk-desc"><strong>触发</strong>：超50%+<br><strong>应对</strong>：精简保留核心</div></div>
+    <div class="risk"><div class="risk-title">🔥 项目过大失去动力</div><div class="risk-desc"><strong>触发</strong>：完成率<50%<br><strong>应对</strong>：缩到3模块</div></div>
+    <div class="risk"><div class="risk-title">🐳 Docker 失败</div><div class="risk-desc"><strong>触发</strong>：>3h 未解决<br><strong>应对</strong>：本地开发先</div></div>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">✅</span> 检查点</h2>
+    <div class="checkpoint"><div class="dot d1"></div><div class="cp-content"><div class="cp-title">Day 4 · 诊断（8/4）</div><div class="cp-desc">骨架+CRUD完成情况</div><div class="cp-trigger">⚡ 没跑通则调整</div></div></div>
+    <div class="checkpoint"><div class="dot d2"></div><div class="cp-content"><div class="cp-title">Day 7 · 周检（8/7）</div><div class="cp-desc">Phase 1 验收</div><div class="cp-trigger">⚡ 偏差>30% 重估</div></div></div>
+    <div class="checkpoint"><div class="dot d3"></div><div class="cp-content"><div class="cp-title">Day 14 · 阶段（8/14）</div><div class="cp-desc">Phase 2 + 进度</div><div class="cp-trigger">⚡ 进度<40% 精简</div></div></div>
+    <div class="checkpoint"><div class="dot d4"></div><div class="cp-content"><div class="cp-title">Day 21 · 阶段（8/21）</div><div class="cp-desc">Phase 3 + 部署规划</div><div class="cp-trigger">⚡ 时间不足评估</div></div></div>
+    <div class="checkpoint"><div class="dot d5"></div><div class="cp-content"><div class="cp-title">Day 28 · 终检（8/28）</div><div class="cp-desc">Phase 4 验收</div><div class="cp-trigger">⚡ 决定最后3天</div></div></div>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">🚀</span> 就现在，1 分钟内开始</h2>
+    <div class="cta-box">
+      <div class="cta-title">打开终端，执行👇</div>
+      <pre>mkdir nodejs-backend && cd nodejs-backend
+npm init -y
+pnpm add express
+pnpm add -D typescript @types/express ts-node-dev
+npx tsc --init --target es2022 --outDir dist --rootDir src --strict</pre>
+      <div class="note">创建 <code>src/index.ts</code> 写 GET /health，加 dev script，<code>npm run dev</code> → curl，旅途开始 🎯</div>
+    </div>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">🚫</span> 暂不学习</h2>
+    <table><tr><th>内容</th><th>原因</th></tr>
+    <tr><td>单元测试</td><td>先手工验证</td></tr>
+    <tr><td>Redis</td><td>非瓶颈</td></tr>
+    <tr><td>GraphQL</td><td>与REST冲突</td></tr>
+    <tr><td>微服务</td><td>先单体全链路</td></tr>
+    <tr><td>数据库优化</td><td>数据量未到</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">📖</span> 资源</h2>
+    <table><tr><th>阶段</th><th>资源</th></tr>
+    <tr><td>Phase 1</td><td><a href="https://expressjs.com/en/guide/routing.html" style="color:var(--accent)">Express 路由指南</a> + <a href="https://www.prisma.io/docs/getting-started/quickstart" style="color:var(--accent)">Prisma 快速入门</a></td></tr>
+    <tr><td>Phase 2</td><td><a href="https://jwt.io/introduction" style="color:var(--accent)">JWT</a> + <a href="https://github.com/expressjs/multer" style="color:var(--accent)">Multer</a></td></tr>
+    <tr><td>Phase 3</td><td><a href="https://socket.io/docs/v4/" style="color:var(--accent)">Socket.IO</a></td></tr>
+    <tr><td>Phase 4</td><td><a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/" style="color:var(--accent)">Docker 最佳实践</a></td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2><span class="emoji">📊</span> 依据表</h2>
+    <table><tr><th>来源</th><th>等级</th><th>核验</th></tr>
+    <tr><td>Express 官方文档</td><td>L1</td><td>2026-07-31</td></tr>
+    <tr><td>Prisma 官方文档</td><td>L1</td><td>2026-07-31</td></tr>
+    <tr><td>Socket.IO 官方文档</td><td>L1</td><td>2026-07-31</td></tr>
+    <tr><td>Docker 官方文档</td><td>L1</td><td>2026-07-31</td></tr>
+    </table>
+  </div>
+</div>
+<footer class="footer">
+  <a class="back" href="/">← 返回知识花园</a>
+  <span style="margin:0 12px">·</span>
+  Hermes Agent + Zede-Zero · 2026-07-31
+</footer>
+</body>
+</html>

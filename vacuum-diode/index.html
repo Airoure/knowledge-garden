@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>真空二极管 · 交互式科普</title>
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg-card: #111827;
+  --bg-elevated: #1a2236;
+  --text: #e5e7eb;
+  --text-dim: #9ca3af;
+  --text-muted: #6b7280;
+  --accent: #06b6d4;
+  --accent2: #3b82f6;
+  --amber: #f59e0b;
+  --orange: #fb923c;
+  --green: #10b981;
+  --pink: #ec4899;
+  --border: #1f2937;
+  --radius: 12px;
+  --font: system-ui,-apple-system,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;
+  --mono: 'JetBrains Mono','Fira Code',Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+
+/* Header */
+.header{background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(245,158,11,.04));border-bottom:1px solid var(--border);padding:48px 24px 36px;text-align:center;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;inset:0;background:radial-gradient(600px 300px at 70% 0%,rgba(245,158,11,.05),transparent);pointer-events:none}
+.header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;background:linear-gradient(135deg,#06b6d4,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.header .sub{color:var(--text-dim);font-size:15px}
+.header .meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--text-muted)}
+.header .meta .dot{color:var(--accent)}
+
+/* Nav */
+.nav{max-width:980px;margin:0 auto;padding:18px 24px 0;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.nav a{font-size:13px;padding:6px 14px;border-radius:20px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-dim);text-decoration:none;transition:all .2s}
+.nav a:hover,.nav a.active{border-color:var(--accent);color:#fff;background:rgba(6,182,212,.08)}
+
+.container{max-width:860px;margin:0 auto;padding:36px 24px 64px}
+
+/* Section */
+.section{margin-bottom:52px}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.sec-head .num{font-size:12px;font-weight:700;color:var(--accent);background:rgba(6,182,212,.1);padding:4px 10px;border-radius:6px;white-space:nowrap}
+.sec-head h2{font-size:1.25rem;font-weight:700;color:#fff}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px}
+.card p,.card li{font-size:14px;color:var(--text-dim);line-height:1.8}
+.card p{margin-bottom:8px}
+.card p:last-child{margin-bottom:0}
+.card strong{color:var(--text)}
+.card .hl{color:var(--amber);font-weight:600}
+.card .hl-c{color:var(--accent);font-weight:600}
+
+/* Grid */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+
+/* Interactive stage */
+.stage{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:14px 0;overflow:hidden}
+.stage svg{display:block;width:100%;height:auto}
+.stage-tip{font-size:13px;color:var(--text-muted);text-align:center;margin-top:10px}
+
+/* Controls */
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0 6px}
+.btn{padding:9px 20px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.active{background:rgba(6,182,212,.12);border-color:var(--accent);color:var(--accent)}
+.btn.amber:hover{border-color:var(--amber);color:var(--amber)}
+.btn.amber.active{background:rgba(245,158,11,.12);border-color:var(--amber);color:var(--amber)}
+
+.slider-row{display:flex;align-items:center;gap:12px;justify-content:center;margin:10px 0;font-size:13px;color:var(--text-dim);flex-wrap:wrap}
+.slider-row input[type=range]{width:220px;accent-color:var(--accent)}
+.slider-row .val{font-family:var(--mono);color:var(--accent);min-width:60px}
+
+/* Labels for diagram */
+.part-label{cursor:pointer}
+.part-label text{transition:fill .2s}
+.part-label:hover text{fill:#fff}
+.part-info{min-height:60px;font-size:13.5px;color:var(--text-dim);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:10px;line-height:1.7}
+.part-info b{color:var(--amber)}
+
+/* Legend */
+.legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:12.5px;color:var(--text-dim);margin-top:8px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+/* Tables */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{text-align:left;padding:10px 14px;background:var(--bg-elevated);color:var(--text-dim);font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-dim);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500;white-space:nowrap}
+
+/* Callout */
+.callout{background:rgba(245,158,11,.05);border-left:3px solid var(--amber);padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0;font-size:14px;color:var(--text-dim)}
+.callout strong{color:var(--amber)}
+.callout.cyan{background:rgba(6,182,212,.05);border-left-color:var(--accent)}
+.callout.cyan strong{color:var(--accent)}
+
+/* Timeline */
+.timeline{margin:16px 0}
+.tl-item{display:flex;gap:16px;margin-bottom:14px}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--amber);margin-top:7px;flex-shrink:0}
+.tl-dot.cyan{background:var(--accent)}
+.tl-body .tl-year{font-family:var(--mono);font-size:13px;color:var(--amber);font-weight:700}
+.tl-body p{font-size:13.5px;color:var(--text-dim);line-height:1.7}
+
+/* Summary */
+.summary{background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(6,182,212,.04));border:1px solid rgba(16,185,129,.15);border-radius:var(--radius);padding:22px 24px;margin:24px 0}
+.summary h3{font-size:15px;font-weight:700;color:var(--green);margin-bottom:10px}
+.summary p{font-size:14px;color:var(--text-dim);line-height:1.8}
+.summary p strong{color:var(--text)}
+
+/* Footer */
+footer{text-align:center;padding:24px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border)}
+footer a{color:var(--accent);text-decoration:none}
+
+/* Facts row */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
+.fact{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.fact .k{font-size:12px;color:var(--text-muted);margin-bottom:4px}
+.fact .v{font-size:14px;color:var(--text);font-weight:600}
+.fact .v small{color:var(--text-muted);font-weight:400}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<header class="header">
+  <h1>🔮 真空二极管</h1>
+  <p class="sub">VACUUM DIODE · 从爱迪生效应到电子管时代的起点</p>
+  <div class="meta">
+    <span>交互式科普</span><span class="dot">·</span><span>热电子发射</span><span class="dot">·</span><span>单向导电</span><span class="dot">·</span><span>整流</span>
+  </div>
+</header>
+
+<nav class="nav">
+  <a href="#sec-1">是什么</a>
+  <a href="#sec-2">解剖结构</a>
+  <a href="#sec-3">工作原理</a>
+  <a href="#sec-4">单向导电</a>
+  <a href="#sec-5">伏安特性</a>
+  <a href="#sec-6">整流应用</a>
+  <a href="#sec-7">历史</a>
+</nav>
+
+<div class="container">
+
+<!-- ════════ 1 是什么 ════════ -->
+<div class="section" id="sec-1">
+  <div class="sec-head"><span class="num">01</span><h2>它是什么？</h2></div>
+  <div class="card">
+    <p><strong>真空二极管</strong>是最简单的电子管（真空管）：一个抽成真空的玻璃管里，装着 <span class="hl">阴极</span>（灯丝）和 <span class="hl">阳极</span>（板极），利用<span class="hl">热电子发射</span>实现<span class="hl-c">单向导电</span>——电流只能从一个方向流过。</p>
+    <p>它是整个电子管时代的起点：整流、检波、放大，一切从这支"会发光的灯泡"开始。</p>
+    <div class="facts">
+      <div class="fact"><div class="k">发明者</div><div class="v">弗莱明 (1904)</div></div>
+      <div class="fact"><div class="k">原理源头</div><div class="v">爱迪生效应 (1883)</div></div>
+      <div class="fact"><div class="k">核心能力</div><div class="v">交流 → 直流（整流）</div></div>
+      <div class="fact"><div class="k">时代意义</div><div class="v">电子管时代的起点</div></div>
+    </div>
+  </div>
+  <div class="callout cyan">
+    <strong>一句话原理：</strong>灯丝加热 → 电子"蒸发"出来 → 正电压把它们吸到阳极 → 形成电流。反过来接，电子被拒收，电流为零。
+  </div>
+</div>
+
+<!-- ════════ 2 解剖结构 ════════ -->
+<div class="section" id="sec-2">
+  <div class="sec-head"><span class="num">02</span><h2>解剖一支真空二极管</h2></div>
+  <div class="card">
+    <p>点击图中部件查看说明 👇</p>
+    <div class="stage">
+      <svg viewBox="0 0 400 330" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="rgba(148,163,184,.10)"/>
+            <stop offset="100%" stop-color="rgba(148,163,184,.03)"/>
+          </linearGradient>
+          <radialGradient id="glow" cx="0.5" cy="0.65" r="0.5">
+            <stop offset="0%" stop-color="rgba(245,158,11,.45)"/>
+            <stop offset="100%" stop-color="rgba(245,158,11,0)"/>
+          </radialGradient>
+        </defs>
+
+        <!-- 玻璃外壳 -->
+        <path d="M120,40 Q200,18 280,40 L295,150 Q295,270 265,295 L135,295 Q105,270 105,150 Z"
+              fill="url(#glass)" stroke="rgba(148,163,184,.35)" stroke-width="2"/>
+        <ellipse cx="200" cy="33" rx="82" ry="12" fill="none" stroke="rgba(148,163,184,.35)" stroke-width="2"/>
+        <text x="200" y="22" text-anchor="middle" font-size="12" fill="#64748b">真空 (~10⁻⁴ Pa)</text>
+
+        <!-- 灯丝发热辉光 -->
+        <ellipse cx="200" cy="235" rx="55" ry="30" fill="url(#glow)"/>
+        <!-- 阴极灯丝 -->
+        <path d="M150,245 L150,225 Q155,215 160,225 L160,245 Q165,255 170,245 L170,225 Q175,215 180,225 L180,245 Q185,255 190,245 L190,225 Q195,215 200,225 L200,245 Q205,255 210,245 L210,225 Q215,215 220,225 L220,245 Q225,255 230,245 L230,225 Q235,215 240,225 L240,245 Q245,255 250,245 L250,225"
+              fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" class="part-anim" style="animation:fil 1.2s ease-in-out infinite alternate"/>
+        <style>@keyframes fil{from{opacity:.75;filter:drop-shadow(0 0 2px rgba(245,158,11,.5))}to{opacity:1;filter:drop-shadow(0 0 8px rgba(245,158,11,.9))}}</style>
+        <!-- 阴极引出线 -->
+        <line x1="200" y1="250" x2="200" y2="300" stroke="#f59e0b" stroke-width="3"/>
+        <line x1="200" y1="300" x2="140" y2="318" stroke="#f59e0b" stroke-width="2.5"/>
+
+        <!-- 阳极板极 -->
+        <path d="M170,100 L170,140 L230,140 L230,100 L215,100 L215,150 L185,150 L185,100 Z"
+              fill="rgba(6,182,212,.15)" stroke="#06b6d4" stroke-width="2.5"/>
+        <line x1="200" y1="100" x2="200" y2="55" stroke="#06b6d4" stroke-width="3"/>
+        <line x1="200" y1="55" x2="262" y2="42" stroke="#06b6d4" stroke-width="2.5"/>
+
+        <!-- 可点击部件 -->
+        <g class="part-label" data-part="cathode">
+          <circle cx="200" cy="238" r="38" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.4)" stroke-width="1.5" stroke-dasharray="4 3" style="cursor:pointer"/>
+          <text x="200" y="292" text-anchor="middle" font-size="13" fill="#f59e0b" font-weight="700">阴极（灯丝）</text>
+        </g>
+        <g class="part-label" data-part="anode">
+          <circle cx="200" cy="125" r="30" fill="rgba(6,182,212,.06)" stroke="rgba(6,182,212,.4)" stroke-width="1.5" stroke-dasharray="4 3" style="cursor:pointer"/>
+          <text x="200" y="172" text-anchor="middle" font-size="13" fill="#06b6d4" font-weight="700">阳极（板极）</text>
+        </g>
+        <g class="part-label" data-part="glass">
+          <circle cx="82" cy="200" r="20" fill="rgba(148,163,184,.05)" stroke="rgba(148,163,184,.3)" stroke-width="1.5" stroke-dasharray="4 3" style="cursor:pointer"/>
+          <text x="82" y="238" text-anchor="middle" font-size="12" fill="#94a3b8">玻璃壳</text>
+        </g>
+      </svg>
+      <div class="part-info" id="part-info">👆 点击 阴极 / 阳极 / 玻璃壳 查看对应说明</div>
+    </div>
+    <table>
+      <tr><th>部件</th><th>角色</th><th>关键点</th></tr>
+      <tr><td>阴极（灯丝）</td><td>电子源</td><td>通电加热到 1000℃ 以上，电子获得能量挣脱金属束缚</td></tr>
+      <tr><td>阳极（板极）</td><td>电子收集器</td><td>加正电压吸引电子，形成外电路电流</td></tr>
+      <tr><td>真空玻璃壳</td><td>保护 & 隔离</td><td>无空气 → 灯丝不氧化、电子不被空气分子碰撞散射</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ════════ 3 工作原理 ════════ -->
+<div class="section" id="sec-3">
+  <div class="sec-head"><span class="num">03</span><h2>工作原理：热电子发射</h2></div>
+  <div class="card">
+    <p><strong>为什么加热就能"冒出"电子？</strong></p>
+    <p>金属里的自由电子平时被"势垒"（表面束缚力）关在内部。温度升高，电子动能增大——当动能超过逸出功（金属的"逃逸门票"，钨约 4.5 eV），电子就<span class="hl">蒸发</span>出金属表面，这就是<span class="hl-c">热电子发射</span>（Thermionic Emission）。</p>
+    <div class="stage">
+      <svg id="emissionSvg" viewBox="0 0 400 230" xmlns="http://www.w3.org/2000/svg">
+        <!-- 金属块 -->
+        <rect x="60" y="90" width="120" height="60" rx="6" fill="rgba(245,158,11,.15)" stroke="#f59e0b" stroke-width="2"/>
+        <text x="120" y="128" text-anchor="middle" font-size="13" fill="#f59e0b">金属（钨）</text>
+        <!-- 势垒 -->
+        <path d="M180,90 Q200,30 220,90" fill="none" stroke="rgba(148,163,184,.6)" stroke-width="2" stroke-dasharray="5 4"/>
+        <text x="238" y="48" font-size="11" fill="#94a3b8">势垒（逸出功）</text>
+        <!-- 内部电子 -->
+        <g id="innerE">
+          <circle cx="90" cy="110" r="4" fill="#fbbf24"/><circle cx="110" cy="105" r="4" fill="#fbbf24"/>
+          <circle cx="130" cy="115" r="4" fill="#fbbf24"/><circle cx="145" cy="103" r="4" fill="#fbbf24"/>
+          <circle cx="100" cy="125" r="4" fill="#fbbf24"/><circle cx="120" cy="122" r="4" fill="#fbbf24"/>
+        </g>
+        <!-- 发射出的电子 -->
+        <g id="emitE"></g>
+        <text x="290" y="110" font-size="12" fill="#64748b">加热 → 动能 ↑</text>
+        <text x="290" y="130" font-size="12" fill="#64748b">越过势垒 → 逸出</text>
+      </svg>
+      <div class="controls">
+        <button class="btn amber" id="heatBtn">🔥 开始加热</button>
+      </div>
+      <div class="legend">
+        <span><span class="sw" style="background:#fbbf24"></span>电子</span>
+        <span><span class="sw" style="background:rgba(245,158,11,.4)"></span>金属</span>
+        <span><span class="sw" style="background:rgba(148,163,184,.6)"></span>势垒</span>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>记住这个机制：</strong>阴极是"电子喷泉"，阳极是"电子收集器"。中间是真空，电子靠电场飞行，一路畅通无阻。
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 4 单向导电 ════════ -->
+<div class="section" id="sec-4">
+  <div class="sec-head"><span class="num">04</span><h2>单向导电：为什么只能过一个方向？</h2></div>
+  <div class="card">
+    <p>二极管的关键性质——切换电源极性，看看会发生什么 👇</p>
+    <div class="stage">
+      <svg id="diodeSvg" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <!-- 玻璃管 -->
+        <path d="M140,55 Q200,38 260,55 L270,140 Q270,205 245,225 L155,225 Q130,205 130,140 Z"
+              fill="rgba(148,163,184,.05)" stroke="rgba(148,163,184,.3)" stroke-width="1.5"/>
+        <!-- 灯丝阴极 -->
+        <path d="M165,195 L165,180 Q172,172 179,180 L179,195 Q186,203 193,195 L193,180 Q200,172 207,180 L207,195 Q214,203 221,195 L221,180 Q228,172 235,180 L235,195"
+              fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- 阳极板 -->
+        <rect x="180" y="75" width="40" height="45" rx="3" fill="rgba(6,182,212,.15)" stroke="#06b6d4" stroke-width="2"/>
+        <!-- 电池 -->
+        <g id="battery">
+          <rect x="38" y="115" width="30" height="46" rx="4" fill="none" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="53" y1="115" x2="53" y2="140" stroke="#94a3b8" stroke-width="2.5"/>
+          <line x1="53" y1="150" x2="53" y2="161" stroke="#94a3b8" stroke-width="1"/>
+          <text x="53" y="178" text-anchor="middle" font-size="11" fill="#94a3b8" id="batLabel">+ −</text>
+        </g>
+        <!-- 导线 -->
+        <line x1="68" y1="138" x2="140" y2="138" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="53" y1="138" x2="38" y2="138" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="260" y1="138" x2="340" y2="138" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="340" y1="138" x2="340" y2="60" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="340" y1="60" x2="200" y2="60" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="200" y1="75" x2="200" y2="60" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="200" y1="225" x2="200" y2="245" stroke="#f59e0b" stroke-width="2.5"/>
+        <line x1="200" y1="245" x2="53" y2="245" stroke="#94a3b8" stroke-width="2"/>
+        <line x1="53" y1="245" x2="53" y2="161" stroke="#94a3b8" stroke-width="2"/>
+        <!-- 电流表 -->
+        <circle cx="290" cy="138" r="16" fill="none" stroke="#94a3b8" stroke-width="2"/>
+        <text x="290" y="142" text-anchor="middle" font-size="11" fill="#94a3b8">A</text>
+        <text x="290" y="172" text-anchor="middle" font-size="11" fill="#64748b" id="ampRead">I = 0</text>
+        <!-- 电子流 -->
+        <g id="eFlow"></g>
+      </svg>
+      <div class="controls">
+        <button class="btn active" id="fwdBtn">正接（阳极+）</button>
+        <button class="btn" id="revBtn">反接（阳极−）</button>
+      </div>
+      <div class="part-info" id="diodeInfo" style="text-align:center;font-size:14px">正接：阳极带正电，把电子从阴极吸过来 → <b style="color:var(--green)">有电流 ✓</b></div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="margin-bottom:0">
+        <p><strong>✅ 正接（导通）</strong></p>
+        <p style="font-size:13px">阳极 +：电场把阴极发射的电子吸向阳极 → 电子飞过去 → 外电路电流从阳极流向阴极。</p>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <p><strong>❌ 反接（截止）</strong></p>
+        <p style="font-size:13px">阳极 −：电场把电子往阴极推 → 电子无法到达阳极 → 电路断开，电流为零。阴极也不会"反向发射"（它不收集电子，且没有电子源）。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 5 伏安特性 ════════ -->
+<div class="section" id="sec-5">
+  <div class="sec-head"><span class="num">05</span><h2>伏安特性曲线</h2></div>
+  <div class="card">
+    <p>拖动滑块改变阳极电压，观察电流如何变化。这条曲线描述了二极管的"脾气"👇</p>
+    <div class="stage">
+      <svg id="ivSvg" viewBox="0 0 460 260" xmlns="http://www.w3.org/2000/svg">
+        <!-- 坐标轴 -->
+        <line x1="60" y1="220" x2="440" y2="220" stroke="#4b5563" stroke-width="1.5"/>
+        <line x1="60" y1="220" x2="60" y2="20" stroke="#4b5563" stroke-width="1.5"/>
+        <text x="445" y="214" font-size="11" fill="#64748b">阳极电压 V</text>
+        <text x="22" y="30" font-size="11" fill="#64748b">电流 I</text>
+        <!-- 曲线：I = K*V^(3/2)，空间电荷区 -->
+        <path id="ivCurve" d="M60,220 L100,220 L140,218 L180,210 L220,192 L260,168 L300,138 L340,104 L380,72 L420,45"
+              fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- 工作点 -->
+        <circle id="wp" cx="60" cy="220" r="6" fill="#f59e0b"/>
+        <text id="wpLabel" x="80" y="40" font-size="12" fill="#fbbf24"></text>
+        <!-- 区域标注 -->
+        <text x="95" y="234" font-size="10" fill="#64748b">空间电荷区</text>
+        <text x="330" y="120" font-size="10" fill="#06b6d4" opacity=".7">饱和区</text>
+      </svg>
+      <div class="slider-row">
+        <span>阳极电压</span>
+        <input type="range" id="ivSlider" min="0" max="100" value="0">
+        <span class="val" id="ivVal">V = 0 V</span>
+        <span class="val" id="iVal">I = 0 mA</span>
+      </div>
+      <div class="part-info" id="ivInfo" style="text-align:center;font-size:14px">V = 0 时电子飞不过来？不——仍有少量电子靠初速度到达阳极，形成微电流；电压升高，电流按 <b style="color:var(--accent)">V^1.5</b> 快速上升。</div>
+    </div>
+    <div class="callout cyan">
+      <strong>三段区域：</strong>
+      ① 起始段：小电流（少数高能电子"抢跑"）
+      ② 空间电荷区：阴极附近堆积的电子云（空间电荷）排斥后来的电子，电流 ∝ V<sup>3/2</sup>（Child-Langmuir 定律）
+      ③ 饱和区：电压足够高，所有发射电子都被吸走，电流不再增长（受灯丝温度限制）
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 6 整流应用 ════════ -->
+<div class="section" id="sec-6">
+  <div class="sec-head"><span class="num">06</span><h2>经典应用：整流</h2></div>
+  <div class="card">
+    <p>交流电正负交替变化。二极管只让正半周通过——把交流变成"单向脉动直流"，这就是<span class="hl-c">整流</span>。老式收音机、电视机电源全靠它。</p>
+    <div class="stage">
+      <svg id="rectSvg" viewBox="0 0 460 190" xmlns="http://www.w3.org/2000/svg">
+        <text x="115" y="18" text-anchor="middle" font-size="12" fill="#94a3b8">输入：交流 (AC)</text>
+        <path id="acWave" d="M20,100 L140,100" fill="none" stroke="#94a3b8" stroke-width="2"/>
+        <text x="345" y="18" text-anchor="middle" font-size="12" fill="#10b981">输出：脉动直流 (DC)</text>
+        <path id="dcWave" d="M280,100 L400,100" fill="none" stroke="#10b981" stroke-width="2"/>
+        <line x1="20" y1="100" x2="440" y2="100" stroke="rgba(148,163,184,.2)" stroke-width="1" stroke-dasharray="4 4"/>
+      </svg>
+      <div class="controls">
+        <button class="btn active" id="rectBtn">▶ 播放整流</button>
+      </div>
+      <div class="legend">
+        <span><span class="sw" style="background:#94a3b8"></span>交流波形（正负交替）</span>
+        <span><span class="sw" style="background:#10b981"></span>整流后（只剩正半周）</span>
+      </div>
+    </div>
+    <div class="facts">
+      <div class="fact"><div class="k">应用①</div><div class="v">电源整流</div></div>
+      <div class="fact"><div class="k">应用②</div><div class="v">收音机检波</div></div>
+      <div class="fact"><div class="k">应用③</div><div class="v">早期电视</div></div>
+      <div class="fact"><div class="k">后人</div><div class="v">三极管/晶体管</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 7 历史 ════════ -->
+<div class="section" id="sec-7">
+  <div class="sec-head"><span class="num">07</span><h2>从爱迪生到电子管时代</h2></div>
+  <div class="card">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-year">1883 · 爱迪生效应</div>
+          <p>爱迪生在改进灯泡时发现：灯丝加热后，在真空管内放一个金属片并加正电压，会有电流流过——"电会穿越真空"？他搞不懂原理，但申请了专利（"爱迪生效应"）。</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot cyan"></div>
+        <div class="tl-body">
+          <div class="tl-year">1904 · 弗莱明阀</div>
+          <p>英国工程师弗莱明基于爱迪生效应，发明了第一支实用电子管——<strong>真空二极管</strong>（弗莱明阀），用于无线电检波，电子管时代开启。</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot cyan"></div>
+        <div class="tl-body">
+          <div class="tl-year">1906 · 三极管</div>
+          <p>德福雷斯特在阳极和阴极之间加了一个"栅极"，用微小信号控制大电流——<strong>放大</strong>成为可能，无线电广播、电话、计算机纷纷登场。</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-year">1947+ · 晶体管取代</div>
+          <p>体积小、功耗低、寿命长的晶体管（半导体）逐步取代电子管，但二极管的"单向导电"思想原封不动地传承了下来——今天的半导体二极管、LED，全是它的后代。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ 总结 ════════ -->
+<div class="summary">
+  <h3>📝 三句话记住真空二极管</h3>
+  <p>
+    <strong>① 热电子发射：</strong>加热阴极，电子挣脱金属逸出。<br>
+    <strong>② 单向导电：</strong>阳极正电压吸电子→导通；反接→截止。<br>
+    <strong>③ 整流：</strong>把交流电变成直流电——它是电子管时代的"大门"，也是所有二极管的祖师爷。
+  </p>
+</div>
+
+</div>
+
+<footer>
+  <p>🔮 真空二极管 · 交互式科普 · <a href="/">知识花园</a></p>
+</footer>
+
+<script>
+// ════════════ 通用 ════════════
+const $ = s => document.querySelector(s);
+const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// 导航高亮
+document.querySelectorAll('.nav a').forEach(a=>{
+  a.addEventListener('click',function(){
+    document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ════════════ 2 结构图部件说明 ════════════
+const partInfos = {
+  cathode: '🔥 <b>阴极（灯丝）</b>—— 通常是一根钨丝，通电流加热到 1000~2000℃，表面的电子获得热能后挣脱金属束缚，"蒸发"到真空里。它是整个管子唯一的电子来源。',
+  anode: '⚡ <b>阳极（板极）</b>—— 一块金属平板，接正电压时形成电场，把阴极发射出的电子吸引过来。电子到达阳极后经外电路流回阴极，形成电流。',
+  glass: '🫙 <b>玻璃壳（真空）</b>—— 管内抽到高真空（约 10⁻⁴ Pa）。为什么必须真空？① 灯丝是炽热的金属，有氧气会立刻烧毁；② 电子在空气中会被气体分子碰撞散射，无法直线飞行。'
+};
+document.querySelectorAll('.part-label').forEach(g=>{
+  g.addEventListener('click',()=>{
+    document.querySelectorAll('.part-label text').forEach(t=>t.style.fill='');
+    g.querySelector('text').style.fill='#fff';
+    $('#part-info').innerHTML = partInfos[g.dataset.part];
+  });
+});
+
+// ════════════ 3 热电子发射动画 ════════════
+let emitRAF = null, emitT = 0, heating = false;
+const emitSvg = $('#emissionSvg'), NS='http://www.w3.org/2000/svg';
+const emitGroup = $('#emitE');
+const innerE = [...document.querySelectorAll('#innerE circle')];
+
+function spawnElectron(){
+  const c = document.createElementNS(NS,'circle');
+  const startX = 165 + Math.random()*15, startY = 105 + Math.random()*25;
+  c.setAttribute('cx',startX); c.setAttribute('cy',startY);
+  c.setAttribute('r',3.5); c.setAttribute('fill','#fbbf24');
+  emitGroup.appendChild(c);
+  const vx = 0.8 + Math.random()*1.2, vy = -0.5 - Math.random()*0.8;
+  let x=startX,y=startY,life=0;
+  const step=()=>{
+    life++;
+    x+=vx; y+=vy;
+    c.setAttribute('cx',x); c.setAttribute('cy',y);
+    c.setAttribute('opacity',Math.max(0,1-life/50));
+    if(x>395||y<15||life>55){c.remove();return}
+    requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function emitLoop(){
+  emitT++;
+  // 内部电子抖动
+  innerE.forEach((e,i)=>{
+    const dx=Math.sin(emitT*0.3+i)*1.5, dy=Math.cos(emitT*0.25+i)*1.5;
+    e.setAttribute('cx',parseFloat(e.getAttribute('cx'))+dx*0.1+ (Math.random()-0.5)*0.6);
+  });
+  if(heating && emitT%14===0) spawnElectron();
+  if(heating || emitT<200) emitRAF=requestAnimationFrame(emitLoop);
+}
+$('#heatBtn').addEventListener('click',function(){
+  heating=!heating;
+  this.classList.toggle('active',heating);
+  this.textContent = heating ? '⏹ 停止加热' : '🔥 开始加热';
+  if(!emitRAF) emitLoop();
+});
+
+// ════════════ 4 单向导电 ════════════
+let diodeRAF=null, diodeMode='fwd';
+const eFlow=$('#eFlow'), ampRead=$('#ampRead'), batLabel=$('#batLabel'), diodeInfo=$('#diodeInfo');
+
+function spawnFlowElectron(reverse){
+  const c=document.createElementNS(NS,'circle');
+  c.setAttribute('r',4); c.setAttribute('fill', reverse?'#f59e0b':'#fbbf24');
+  c.setAttribute('opacity','.9');
+  eFlow.appendChild(c);
+  let x=200, y=190, vx=0, vy=0, life=0;
+  const step=()=>{
+    life++;
+    if(reverse){
+      // 电子被推回阴极附近，无法到达阳极
+      vy = -0.3 - Math.random()*0.4;
+      y = Math.min(y+vy, 195);
+      x += (Math.random()-0.5)*1.2;
+    }else{
+      // 飞向阳极
+      vy = -1.8;
+      y += vy;
+      x += (Math.random()-0.5)*0.8;
+      if(y<105){ c.remove(); return; }
+    }
+    c.setAttribute('cx',x); c.setAttribute('cy',y);
+    if(life>90){c.remove();return}
+    requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function diodeLoop(){
+  if(diodeMode==='fwd'){
+    ampRead.textContent='I = 12 mA';
+    if(Math.random()<0.55) spawnFlowElectron(false);
+  }else{
+    ampRead.textContent='I = 0';
+    if(Math.random()<0.4) spawnFlowElectron(true);
+  }
+  diodeRAF=requestAnimationFrame(diodeLoop);
+}
+
+function setDiodeMode(mode){
+  diodeMode=mode;
+  document.querySelectorAll('#fwdBtn,#revBtn').forEach(b=>b.classList.remove('active'));
+  (mode==='fwd'?$('#fwdBtn'):$('#revBtn')).classList.add('active');
+  batLabel.textContent = mode==='fwd' ? '+ −' : '− +';
+  diodeInfo.innerHTML = mode==='fwd'
+    ? '正接：阳极带正电 → 电子被吸过去 → <b style="color:var(--green)">有电流 ✓</b>'
+    : '反接：阳极带负电 → 电子被推回 → <b style="color:var(--red,#ef4444)">无电流 ✗</b>';
+}
+$('#fwdBtn').addEventListener('click',()=>setDiodeMode('fwd'));
+$('#revBtn').addEventListener('click',()=>setDiodeMode('rev'));
+if(!diodeRAF) diodeLoop();
+
+// ════════════ 5 伏安特性 ════════════
+const ivSlider=$('#ivSlider'), ivVal=$('#ivVal'), iVal=$('#iVal'), wp=$('#wp'), wpLabel=$('#wpLabel'), ivInfo=$('#ivInfo');
+const ivCurve = $('#ivCurve');
+// 用 path.getPointAtLength 定位工作点
+const totalLen = ivCurve.getTotalLength();
+
+function updateIV(){
+  const v = parseInt(ivSlider.value); // 0~100 → 0~300V
+  const volts = Math.round(v*3);
+  // I = 0.2 * V^1.5 mA (模拟)
+  const i = volts<=0 ? 0.3 : Math.min(60, 0.2*Math.pow(volts,1.5));
+  const frac = v/100;
+  const pt = ivCurve.getPointAtLength(totalLen*frac);
+  wp.setAttribute('cx',pt.x); wp.setAttribute('cy',pt.y);
+  wpLabel.textContent = `V=${volts}V, I=${i.toFixed(1)}mA`;
+  ivVal.textContent = `V = ${volts} V`;
+  iVal.textContent = `I = ${i.toFixed(1)} mA`;
+  ivInfo.innerHTML = volts===0
+    ? 'V = 0：阴极发射的高能电子仍能"抢跑"到达阳极，形成很小的电流（热电子初速度）。'
+    : volts<120
+      ? `V = ${volts}V：<b style="color:var(--accent)">空间电荷区</b> —— 阴极附近堆积的电子云排斥后续电子，电流按 V<sup>1.5</sup> 增长。`
+      : `V = ${volts}V：<b style="color:var(--accent)">饱和区</b> —— 电子基本被吸光，电流趋近上限（由灯丝温度决定）。`;
+}
+ivSlider.addEventListener('input',updateIV);
+updateIV();
+
+// ════════════ 6 整流动画 ════════════
+let rectRAF=null, rectT=0, rectPlaying=true;
+const acWave=$('#acWave'), dcWave=$('#dcWave');
+
+function renderRect(){
+  rectT+=0.04;
+  let ac='M20,100', dc='M280,100';
+  const n=60;
+  for(let i=0;i<=n;i++){
+    const x=20+i*2, t=i/n*Math.PI*4;
+    const y=100-55*Math.sin(t+rectT);
+    ac+=` L${x.toFixed(1)},${y.toFixed(1)}`;
+    const x2=280+i*2;
+    const y2=100-55*Math.max(0,Math.sin(t+rectT)); // 半波整流：负半周截断
+    dc+=` L${x2.toFixed(1)},${y2.toFixed(1)}`;
+  }
+  acWave.setAttribute('d',ac);
+  dcWave.setAttribute('d',dc);
+  if(rectPlaying) rectRAF=requestAnimationFrame(renderRect);
+}
+$('#rectBtn').addEventListener('click',function(){
+  rectPlaying=!rectPlaying;
+  this.classList.toggle('active',rectPlaying);
+  this.textContent = rectPlaying ? '⏸ 暂停' : '▶ 播放整流';
+  if(rectPlaying && !rectRAF) renderRect();
+});
+renderRect();
+
+// prefers-reduced-motion：停止所有动画
+if(prefersReduced){
+  [emitRAF,diodeRAF,rectRAF].forEach(r=>{if(r)cancelAnimationFrame(r)});
+  heating=false; diodeMode='fwd'; rectPlaying=false;
+  $('#heatBtn').textContent='🔥 开始加热';
+  $('#rectBtn').textContent='▶ 播放整流';
+}
+</script>
+</body>
+</html>

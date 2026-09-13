@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HMAC 学习笔记 · 知识花园</title>
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg-card: #111827;
+  --bg-elevated: #1a2236;
+  --text: #e5e7eb;
+  --text-dim: #9ca3af;
+  --text-muted: #6b7280;
+  --accent: #06b6d4;
+  --accent2: #3b82f6;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --pink: #ec4899;
+  --purple: #a855f7;
+  --red: #ef4444;
+  --border: #1f2937;
+  --radius: 12px;
+  --font: system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono: 'JetBrains Mono','Fira Code',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  min-height:100vh;
+}
+
+/* ── Header ── */
+.header{
+  background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(59,130,246,.05));
+  border-bottom:1px solid var(--border);
+  padding:40px 24px 32px;
+  text-align:center;
+}
+.header h1{
+  font-size:clamp(1.5rem,3.5vw,2.2rem);
+  font-weight:800;
+  background:linear-gradient(135deg,#06b6d4,#3b82f6);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:6px;
+}
+.header .sub{color:var(--text-dim);font-size:15px;margin-bottom:4px}
+.header .meta{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:12px}
+.header .meta span{font-size:13px;color:var(--text-muted)}
+.header .meta .dot{color:var(--accent)}
+
+/* ── Nav ── */
+.nav-bar{
+  max-width:980px;
+  margin:0 auto;
+  padding:20px 24px 0;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.nav-bar a{
+  font-size:13px;
+  padding:6px 14px;
+  border-radius:20px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  color:var(--text-dim);
+  text-decoration:none;
+  transition:all .2s;
+}
+.nav-bar a:hover,.nav-bar a.active{
+  border-color:var(--accent);
+  color:#fff;
+  background:rgba(6,182,212,.08);
+}
+
+/* ── Main ── */
+.container{
+  max-width:820px;
+  margin:0 auto;
+  padding:32px 24px 60px;
+}
+
+/* ── Section ── */
+.section{
+  margin-bottom:40px;
+}
+.section-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:20px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.section-header .num{
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  background:rgba(6,182,212,.1);
+  padding:4px 10px;
+  border-radius:6px;
+  white-space:nowrap;
+}
+.section-header h2{font-size:1.25rem;font-weight:700;color:#fff}
+
+/* ── Info card ── */
+.info-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px 24px;
+  margin-bottom:16px;
+}
+.info-card h3{
+  font-size:15px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.info-card p,.info-card li{font-size:14px;color:var(--text-dim);line-height:1.7}
+.info-card p{margin-bottom:6px}
+.info-card p:last-child{margin-bottom:0}
+.info-card ul{padding-left:20px;margin:6px 0}
+.info-card ul li{margin-bottom:4px}
+.info-card ul li:last-child{margin-bottom:0}
+.info-card strong{color:var(--text)}
+.info-card .sub-h{font-size:14px;font-weight:700;color:var(--accent);margin:16px 0 6px}
+
+/* ── Table ── */
+.table-wrap{overflow-x:auto}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+  margin:8px 0;
+}
+table th{
+  text-align:left;
+  padding:10px 14px;
+  background:var(--bg-elevated);
+  color:var(--text-dim);
+  font-weight:600;
+  font-size:13px;
+  border-bottom:1px solid var(--border);
+}
+table td{
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  color:var(--text-dim);
+  vertical-align:top;
+}
+table td:first-child{color:var(--text);font-weight:500;white-space:nowrap}
+table tr:hover td{background:rgba(6,182,212,.02)}
+
+/* ── Flow ── */
+.flow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  flex-wrap:wrap;
+  padding:16px;
+  background:var(--bg);
+  border-radius:8px;
+  border:1px solid var(--border);
+  margin:12px 0;
+  font-size:13px;
+}
+.flow .step{
+  background:var(--bg-elevated);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:8px 14px;
+  color:var(--text);
+  font-weight:500;
+}
+.flow .step.highlight{border-color:var(--accent);color:var(--accent)}
+.flow .step.bad{border-color:rgba(239,68,68,.4);color:var(--red)}
+.flow .arrow{color:var(--text-muted);font-size:16px}
+
+/* ── Code block ── */
+pre{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:16px;
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.6;
+  color:var(--green);
+  overflow-x:auto;
+  margin:12px 0;
+}
+pre .dim{color:var(--text-muted)}
+pre .hl{color:var(--accent)}
+
+/* ── Concept box ── */
+.concept-box{
+  background:linear-gradient(135deg,rgba(6,182,212,.04),rgba(59,130,246,.02));
+  border:1px solid rgba(6,182,212,.15);
+  border-radius:var(--radius);
+  padding:18px 22px;
+  margin:12px 0;
+}
+.concept-box .label{
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  color:var(--accent);
+  margin-bottom:4px;
+}
+.concept-box p{font-size:14px;color:var(--text-dim);line-height:1.7}
+.concept-box p strong{color:var(--text)}
+
+/* ── Callout ── */
+.callout{
+  background:rgba(245,158,11,.06);
+  border-left:3px solid var(--amber);
+  padding:14px 18px;
+  border-radius:0 8px 8px 0;
+  margin:14px 0;
+  font-size:14px;
+  color:var(--text-dim);
+}
+.callout strong{color:var(--amber)}
+.callout.red{
+  background:rgba(239,68,68,.05);
+  border-left-color:var(--red);
+}
+.callout.red strong{color:var(--red)}
+
+/* ── Summary ── */
+.summary-box{
+  background:linear-gradient(135deg,rgba(16,185,129,.06),rgba(6,182,212,.04));
+  border:1px solid rgba(16,185,129,.15);
+  border-radius:var(--radius);
+  padding:20px 24px;
+  margin:24px 0;
+}
+.summary-box h3{font-size:15px;font-weight:700;color:var(--green);margin-bottom:8px}
+.summary-box p{font-size:14px;color:var(--text-dim);line-height:1.7}
+.summary-box p strong{color:var(--text)}
+
+/* ── Related links ── */
+.related{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:12px;
+  margin:12px 0;
+}
+.related a{
+  display:block;
+  padding:14px 18px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  text-decoration:none;
+  transition:all .2s;
+}
+.related a:hover{border-color:rgba(6,182,212,.3)}
+.related .t{font-size:14px;font-weight:600;color:var(--accent)}
+.related .d{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+/* ── Footer ── */
+footer{
+  text-align:center;
+  padding:24px;
+  color:var(--text-muted);
+  font-size:13px;
+  border-top:1px solid var(--border);
+}
+footer a{color:var(--accent);text-decoration:none}
+
+/* ── Responsive ── */
+@media(max-width:600px){
+  .flow{flex-direction:column;gap:4px}
+  .flow .arrow{transform:rotate(90deg)}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<header class="header">
+  <h1>🔐 HMAC 学习笔记</h1>
+  <p class="sub">基于哈希的消息认证码 · 从原理到应用</p>
+  <div class="meta">
+    <span>密码学基础</span>
+    <span class="dot">·</span>
+    <span>2026-07-31</span>
+    <span class="dot">·</span>
+    <span>概念向笔记</span>
+  </div>
+</header>
+
+<!-- ════════ NAV ════════ -->
+<nav class="nav-bar">
+  <a href="#sec-1">是什么</a>
+  <a href="#sec-2">为什么需要</a>
+  <a href="#sec-3">工作流程</a>
+  <a href="#sec-4">算法原理</a>
+  <a href="#sec-5">四属性</a>
+  <a href="#sec-6">防不住什么</a>
+  <a href="#sec-7">真实应用</a>
+  <a href="#sec-8">vs 数字签名</a>
+</nav>
+
+<div class="container">
+
+<!-- ════════════ 一、是什么 ════════════ -->
+<div class="section" id="sec-1">
+  <div class="section-header">
+    <span class="num">01</span>
+    <h2>是什么？</h2>
+  </div>
+  <div class="info-card">
+    <p><strong>HMAC（Hash-based Message Authentication Code，基于哈希的消息认证码）</strong>—— 一种用哈希函数 + 密钥来验证消息完整性和真实性的技术。</p>
+    <div class="concept-box">
+      <div class="label">一句话</div>
+      <p><strong>HMAC = 带密钥的哈希</strong>。实际实现用两次哈希 + 密钥填充，防止长度扩展攻击。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 二、为什么需要 ════════════ -->
+<div class="section" id="sec-2">
+  <div class="section-header">
+    <span class="num">02</span>
+    <h2>为什么需要它？</h2>
+  </div>
+  <div class="info-card">
+    <p>场景：你在浏览器发请求"转账 100 元"，中间人篡改成"转账 10000 元"。怎么发现？</p>
+    <div class="callout red">
+      <strong>普通哈希（MD5/SHA-256）的缺陷：</strong>能发现篡改，但攻击者可以重新计算哈希，伪造出合法的校验值 —— 因为哈希计算不需要密钥，任何人都能算。
+    </div>
+    <p><strong>HMAC 的解决思路：</strong>把密钥混进哈希计算。只有持有密钥的人才能算出正确的认证码，攻击者没有密钥，篡改后算不出匹配的 MAC → 被识破。</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>普通哈希 (SHA-256)</th><th>HMAC</th></tr>
+        <tr><td>是否需要密钥</td><td>❌ 不需要</td><td>✅ 需要</td></tr>
+        <tr><td>防篡改</td><td>⚠️ 能发现，但攻击者可重算</td><td>✅ 攻击者无密钥无法伪造</td></tr>
+        <tr><td>防伪造</td><td>❌</td><td>✅</td></tr>
+        <tr><td>公式</td><td>H(消息)</td><td>H(密钥⊕pad + H(密钥⊕pad + 消息))</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 三、工作流程 ════════════ -->
+<div class="section" id="sec-3">
+  <div class="section-header">
+    <span class="num">03</span>
+    <h2>工作流程</h2>
+  </div>
+  <div class="info-card">
+    <div class="flow">
+      <span class="step">发送方：消息 + 密钥</span>
+      <span class="arrow">→</span>
+      <span class="step highlight">HMAC 算法</span>
+      <span class="arrow">→</span>
+      <span class="step">认证码 (MAC)</span>
+      <span class="arrow">→</span>
+      <span class="step">发送 [消息 + MAC]</span>
+    </div>
+    <div class="flow">
+      <span class="step">接收方：收到消息</span>
+      <span class="arrow">→</span>
+      <span class="step highlight">用手中密钥重算 HMAC</span>
+      <span class="arrow">→</span>
+      <span class="step">比对 MAC</span>
+      <span class="arrow">→</span>
+      <span class="step">一致 = 未被篡改 + 来自持有密钥的一方</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 四、算法原理 ════════════ -->
+<div class="section" id="sec-4">
+  <div class="section-header">
+    <span class="num">04</span>
+    <h2>算法原理：为什么不能简单哈希？</h2>
+  </div>
+  <div class="info-card">
+    <h3>朴素方案的问题：长度扩展攻击</h3>
+    <p>如果 MAC = SHA256(密钥 + 消息)，攻击者虽然不知道密钥，却能基于已得到的哈希值，凭空构造出「密钥+消息+追加内容」的合法 MAC —— 这叫<strong>长度扩展攻击</strong>。</p>
+    <p>所以 HMAC 规范（RFC 2104）设计成了两次哈希 + 两个填充：</p>
+    <pre><span class="dim"># HMAC 计算过程</span>
+步骤1: 密钥填充到块大小(64字节)，记为 K'
+步骤2: inner = SHA256( (K' ⊕ ipad) + 消息 )    <span class="dim"># ipad = 0x36 重复填充</span>
+步骤3: outer = SHA256( (K' ⊕ opad) + inner )  <span class="dim"># opad = 0x5C 重复填充</span>
+结果:   HMAC = outer</pre>
+    <div class="concept-box">
+      <div class="label">📌 要点</div>
+      <p>两个填充值（0x36 / 0x5C）故意取不同的常数，把密钥"揉"进两个不同的哈希上下文。第二次哈希把第一次结果再包一层，<strong>长度扩展攻击失效</strong>。</p>
+    </div>
+    <p>HMAC 不是"哈希前加个密钥"这么简单，而是用<strong>密钥派生的两个掩码</strong>分别参与两次哈希，最终输出跟密钥和消息都强绑定。</p>
+  </div>
+</div>
+
+<!-- ════════════ 五、四种属性 ════════════ -->
+<div class="section" id="sec-5">
+  <div class="section-header">
+    <span class="num">05</span>
+    <h2>HMAC 的四种属性</h2>
+  </div>
+  <div class="info-card">
+    <div class="table-wrap">
+      <table>
+        <tr><th>属性</th><th>含义</th></tr>
+        <tr><td>确定性</td><td>相同输入 → 相同输出（所以能比对）</td></tr>
+        <tr><td>密钥依赖</td><td>输出不可预测，无密钥算不出来</td></tr>
+        <tr><td>篡改敏感</td><td>消息改一个比特，MAC 完全不同</td></tr>
+        <tr><td>不可伪造</td><td>计算上不可逆，无法反推密钥</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 六、防不住什么 ════════════ -->
+<div class="section" id="sec-6">
+  <div class="section-header">
+    <span class="num">06</span>
+    <h2>HMAC 防不住什么？</h2>
+  </div>
+  <div class="info-card">
+    <h3>① 密钥泄露</h3>
+    <p>HMAC 的所有安全都押在密钥上。密钥丢了 = 保险箱钥匙被复制，HMAC 形同虚设。</p>
+  </div>
+  <div class="info-card">
+    <h3>② 重放攻击（Replay）</h3>
+    <p>HMAC 能证明消息没被改，但<strong>证明不了消息是新的</strong>：</p>
+    <div class="flow">
+      <span class="step">攻击者窃听: [转账请求 + 合法MAC]</span>
+      <span class="arrow">→</span>
+      <span class="step bad">原封不动再发一次！</span>
+    </div>
+    <p>银行验证：MAC 正确 ✅ 又执行了一次转账。</p>
+    <p><strong>防御手段</strong>（在消息里加时间戳或一次性随机数 Nonce）：</p>
+    <ul>
+      <li><strong>时间戳</strong>：接收方检查时间差，超过阈值直接拒绝</li>
+      <li><strong>Nonce</strong>：每个请求带唯一随机数，接收方记录用过的不再接受</li>
+      <li>两者结合最稳（OAuth、AWS 签名都是这么做的）</li>
+    </ul>
+  </div>
+  <div class="info-card">
+    <h3>③ 中间人改写协议逻辑</h3>
+    <p>HMAC 只管消息本身，不管"这个消息该不该发"（权限、频率等）。</p>
+  </div>
+</div>
+
+<!-- ════════════ 七、真实应用 ════════════ -->
+<div class="section" id="sec-7">
+  <div class="section-header">
+    <span class="num">07</span>
+    <h2>真实应用：API 签名</h2>
+  </div>
+  <div class="info-card">
+    <p>HMAC 最经典的生产场景：</p>
+    <pre><span class="dim"># 客户端</span>
+1. 构造请求参数（方法 + 路径 + 时间戳 + 消息体）
+2. 按规则拼接成规范字符串
+3. HMAC-SHA256(密钥, 规范字符串) → 签名
+4. 请求头带上: Authorization: HMAC ***</pre>
+    <pre><span class="dim"># 服务器</span>
+1. 取出请求参数，按相同规则拼接
+2. 用数据库里存的该用户密钥重新计算 HMAC
+3. 比对两个签名 → 一致才放行
+4. 检查时间戳 → 太旧就拒绝（防重放）</pre>
+    <p><strong>为什么这样设计？</strong></p>
+    <ul>
+      <li>密钥在两端各存一份，<strong>永远不随请求传输</strong>（这是和"校验值一起传"的 MD5 的根本区别）</li>
+      <li>时间戳防重放</li>
+      <li>请求内容参与签名 → 参数被篡改，签名立刻对不上</li>
+    </ul>
+    <div class="concept-box">
+      <div class="label">📌 实例</div>
+      <p>云厂商的 API 签名（AWS SigV4、腾讯云 TC3-HMAC-SHA256）本质都是这个模式，只是拼接规则和哈希细节更复杂。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ 八、vs 数字签名 ════════════ -->
+<div class="section" id="sec-8">
+  <div class="section-header">
+    <span class="num">08</span>
+    <h2>HMAC vs 数字签名</h2>
+  </div>
+  <div class="info-card">
+    <div class="table-wrap">
+      <table>
+        <tr><th></th><th>HMAC</th><th>数字签名（RSA/ECDSA）</th></tr>
+        <tr><td>密钥体系</td><td>对称（同一个密钥）</td><td>非对称（私钥签、公钥验）</td></tr>
+        <tr><td>能证明"谁发的"？</td><td>⚠️ 只能证明"持有密钥的一方"</td><td>✅ 能证明到具体的人/机构</td></tr>
+        <tr><td>适合场景</td><td>自己系统内部、API 调用方是你认识的人</td><td>对外发布、需要追责、多方协作</td></tr>
+        <tr><td>性能</td><td>快</td><td>慢</td></tr>
+      </table>
+    </div>
+    <p><strong>场景判断：</strong>微信支付回调验签用 HMAC 就够（双方共知密钥）；但 HTTPS 证书、软件发布签名必须用数字签名（全世界都要验证，私钥不能分发）。</p>
+  </div>
+</div>
+
+<!-- ════════════ 总结 ════════════ -->
+<div class="summary-box">
+  <h3>📝 总结</h3>
+  <pre style="margin:8px 0"><span class="dim">HMAC 安全 = 密钥保密 ✅ + 消息防篡改 ✅ + 防重放(时间戳/Nonce) ✅</span></pre>
+  <p><strong>HMAC 是"共享秘密"时代的完美工具，但它替你做不了三件事：分发密钥、证明身份归属、抵御重放。</strong>真实系统里这三件事分别由密钥管理系统、数字签名、时间戳机制来补。</p>
+</div>
+
+<!-- ════════════ 相关笔记 ════════════ -->
+<div class="section" id="sec-9">
+  <div class="section-header">
+    <span class="num">09</span>
+    <h2>相关概念</h2>
+  </div>
+  <div class="related">
+    <a href="/openai-cookbook-roadmap/">
+      <div class="t">📖 OpenAI Cookbook 学习路线</div>
+      <div class="d">从概念到架构，6 阶段掌握 OpenAI API 生态</div>
+    </a>
+  </div>
+</div>
+
+</div>
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <p>🔐 HMAC 学习笔记 · <a href="/">知识花园</a></p>
+</footer>
+
+<script>
+// URL hash 高亮导航
+document.querySelectorAll('.nav-bar a').forEach(a => {
+  a.addEventListener('click', function(){
+    document.querySelectorAll('.nav-bar a').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+window.addEventListener('load', function(){
+  const hash = location.hash || '#sec-1';
+  const target = document.querySelector(`.nav-bar a[href="${hash}"]`);
+  if(target) {
+    document.querySelectorAll('.nav-bar a').forEach(x => x.classList.remove('active'));
+    target.classList.add('active');
+  }
+});
+</script>
+</body>
+</html>
