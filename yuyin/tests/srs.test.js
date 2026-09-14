@@ -6,6 +6,7 @@ vm.createContext(sandbox);
 const run=f=>vm.runInContext(fs.readFileSync(path.join(YY,f),'utf8'),sandbox,{filename:f});
 run('yy-deck.js'); run('yy-srs.js');
 const W=sandbox.window, SRS=W.YY_SRS;
+const TOTAL=W.YY_DECK.length;                          // 词库条数（会随扩充变化，勿写死）
 const DAY=86400000;
 let DAY0=new Date(2026,8,1,12,0,0).getTime();
 const at=d=>DAY0+d*DAY;
@@ -56,7 +57,7 @@ ck(SRS.overview(at(1)+9*60000).dueCount===9,'again 卡9分钟时不应回归，�
 ck(SRS.overview(at(1)).scheduledCount===1,'已学未到期应为1（9张存量仍到期 + 该卡排到10分钟后），实为'+SRS.overview(at(1)).scheduledCount);
 ck(SRS.overview(at(2)).dueCount===10,'第2天应10张到期（当日新学次日零点才到期不算今天），实为'+SRS.overview(at(2)).dueCount);
 ck(SRS.overview(at(1)).learnedCount===10,'累计学过应为10（第0天学的10张，不因评忘记而倒退），实为'+SRS.overview(at(1)).learnedCount);
-ck(SRS.overview(at(1)).progress===3,'进度应为3%（10/300），实为'+SRS.overview(at(1)).progress);
+ck(SRS.overview(at(1)).progress===Math.round(10/TOTAL*100),'进度应为'+(Math.round(10/TOTAL*100))+'%（10/'+TOTAL+'），实为'+SRS.overview(at(1)).progress);
 
 // 5. 「模糊」间隔短于「认识」
 const idH=dueCards[1].card.id, idG=dueCards[2].card.id;
@@ -85,8 +86,11 @@ for(let d=2;d<=30;d++){
 }
 ck(maxNew===10,'每日新学应稳定在配额10，峰值'+maxNew);
 ov=SRS.overview(at(30));
-ck(ov.learnedCount===300,'30天后应学完300张，实为'+ov.learnedCount);
-ck(ov.freshCount===0,'30天后未学应为0，实为'+ov.freshCount);
+// 已学 300 张 = 第 0 天会话 10 张 + 第 2～30 天（29 天）×10 张；
+// 第 1 天的会话在本文件第 4～6 节只单独评了 3 张，其余新卡未记入进度
+const expectLearned=300;
+ck(ov.learnedCount===expectLearned,'30天后应学完'+expectLearned+'张，实为'+ov.learnedCount);
+ck(ov.freshCount===TOTAL-expectLearned,'30天后未学应为'+(TOTAL-expectLearned)+'，实为'+ov.freshCount);
 
 // 8. 配额可调且有边界
 SRS.setNewPerDay(20); ck(SRS.overview(at(31)).newPerDay===20,'配额设置未生效');
@@ -108,7 +112,7 @@ for(let d=31;d<=45;d++){
   mature.push(s.filter(x=>!x.isNew).length);
   s.forEach(x=>W.YY_SRS.grade(x.card.id,'good',at(d)));
 }
-ck(Math.max(...mature)<300,'到期量未分散，峰值'+Math.max(...mature));
+ck(Math.max(...mature)<TOTAL,'到期量未分散，峰值'+Math.max(...mature));
 
 // 11. streak / forecast / reset
 ck(W.YY_SRS.streak(at(45))>=1,'streak 异常');

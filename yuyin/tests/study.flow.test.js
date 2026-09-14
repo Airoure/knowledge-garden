@@ -17,6 +17,9 @@ const run=f=>vm.runInContext(fs.readFileSync(DIR+'/js/'+f,'utf8'),sandbox,{filen
 const boot=()=>['yy-questions.js','yy-courses.js','yy-deck.js','yy-srs.js','yy-study.js','app.js'].forEach(run);
 boot();
 const S=win.YY_STUDY, SRS=win.YY_SRS;
+const DECK=win.YY_DECK||[];
+const TOTAL=DECK.length;                               // 词库条数（会随扩充变化，勿写死）
+const GRP=(g)=>DECK.filter(c=>c.group===g).length;
 let fails=[]; const ck=(c,m)=>{ if(!c) fails.push(m); };
 const html=()=>view.innerHTML;
 const DAY=86400000;
@@ -24,8 +27,10 @@ const DAY=86400000;
 // 1. 首页入口
 loc.hash='#/'; run('app.js');
 ck(html().includes('每日成语 · 易混词'),'首页缺少新入口');
-ck(html().includes('300 条高频成语与易混词'),'首页入口描述未更新');
+ck(html().includes(TOTAL+' 条高频成语与易混词'),'首页入口描述未更新');
 ck(html().includes('待复习'),'首页未显示待复习数');
+ck(html().includes('背单词模式'),'首页未突出每日复习（背单词模式）入口');
+ck(html().includes('daily-cta'),'首页缺少每日复习一键开始按钮');
 
 // 2. 看板
 loc.hash='#/study'; run('app.js');
@@ -33,7 +38,7 @@ const dash=html();
 ck(dash.includes('今日任务'),'看板缺少今日任务');
 ck(dash.includes('未来 7 天复习量'),'看板缺少 7 天预测');
 ck(dash.includes('学习设置'),'看板缺少设置区');
-ck(dash.includes('词库 300'),'看板未显示词库总数');
+ck(dash.includes('词库 '+TOTAL),'看板未显示词库总数');
 ck(dash.includes('新学 <b>10</b> 条'),'首日应显示新学 10 条');
 ck((dash.match(/class="fc-col"/g)||[]).length===7,'预测柱应为 7 根');
 ck(dash.includes('data-act="study-start"'),'看板缺少开始按钮');
@@ -91,9 +96,9 @@ ck(saved.daily.newLearned===10,'当日新学应记10，实为'+saved.daily.newLe
 // 10. 词库总览
 S.preview('__all__');
 ck(html().includes('词库总览'),'总览标题缺失');
-ck((html().match(/class="db-item"/g)||[]).length===300,'总览应300条，实为'+(html().match(/class="db-item"/g)||[]).length);
+ck((html().match(/class="db-item"/g)||[]).length===TOTAL,'总览应'+TOTAL+'条，实为'+(html().match(/class="db-item"/g)||[]).length);
 S.preview('望文生义');
-ck((html().match(/class="db-item"/g)||[]).length===36,'分类筛选应36条，实为'+(html().match(/class="db-item"/g)||[]).length);
+ck((html().match(/class="db-item"/g)||[]).length===GRP('望文生义'),'分类筛选应'+GRP('望文生义')+'条，实为'+(html().match(/class="db-item"/g)||[]).length);
 
 // 11. 配额
 S.setQuota(5);

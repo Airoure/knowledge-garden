@@ -297,6 +297,13 @@
     const bars = COURSES.map((c, i) =>
       `<i title="${c.name} ${pcts[i] >= 0 ? Math.round(pcts[i] * 100) + '%' : ''}" style="--pct:${pcts[i] >= 0 ? pcts[i] : 0}"></i>`).join('');
 
+    /* 每日复习（背单词式）看板数据 */
+    const ov = window.YY_SRS ? window.YY_SRS.overview() : null;
+    const deckTotal = (window.YY_DECK || []).length;
+    const dailyCta = ov && ov.pendingTotal > 0
+      ? `开始今日学习 · ${ov.dueCount} 复习${ov.newCount ? ` + ${ov.newCount} 新学` : ''}`
+      : (ov && ov.freshCount > 0 ? '今日已清空 · 可加练新词' : '今日已清空');
+
     const rows = COURSES.map((c) => {
       const st = store.chapters[c.id];
       const p = st && st.total ? Math.round(st.right / st.total * 100) : null;
@@ -328,15 +335,30 @@
         </div>
         <a class="cta-exam" href="#/exam" data-act="nav" data-h="#/exam">🎯 综合模考<small>10 题混编 · 真题难度 · 建议 9 分钟</small></a>
       </div>
+      <div class="sec-title">每日复习 · 新学</div>
+      <div class="chapters">
+        <div class="ch-row daily-row" data-act="nav" data-h="#/study">
+          <div class="ic">📇</div>
+          <div>
+            <div class="tt">每日成语 · 易混词<em class="daily-tag">背单词模式</em></div>
+            <div class="ds">${deckTotal} 条高频成语与易混词，按 SM-2 间隔重复调度：先清「到期复习」，再学当天新词条</div>
+            <div class="badges">
+              ${ov ? `<span class="badge hot">🔁 待复习 ${ov.dueCount + ov.newCount}</span>
+                <span class="badge">🌱 未学 ${ov.freshCount}</span>
+                <span class="badge">✅ 已学 ${ov.learnedCount}/${ov.total}</span>
+                ${ov.streak > 1 ? `<span class="badge">🔥 连续 ${ov.streak} 天</span>` : ''}` : ''}
+            </div>
+          </div>
+          <div class="meta">${ov ? `<div class="pct">${ov.progress}%</div><div>今日 ${ov.reviewsToday + ov.newLearnedToday} 条</div>` : ''}</div>
+          <div class="arr">→</div>
+        </div>
+      </div>
+      <div class="daily-cta" data-act="nav" data-h="#/study">▶ ${dailyCta}</div>
+
       <div class="sec-title">方法课程</div>
       <div class="chapters">${rows}</div>
       <div class="sec-title">辅助工具</div>
       <div class="chapters">
-        <div class="ch-row" data-act="nav" data-h="#/study">
-          <div class="ic">📇</div>
-          <div><div class="tt">每日成语 · 易混词</div><div class="ds">300 条高频成语与易混词，按 SM-2 间隔重复每日推送「该复习的 + 该新学的」</div></div>
-          <div class="meta">${(window.YY_DECK || []).length} 条<br><span class="done">待复习 ${window.YY_SRS ? window.YY_SRS.overview().pendingTotal : 0}</span></div><div class="arr">→</div>
-        </div>
         <div class="ch-row" data-act="nav" data-h="#/cards">
           <div class="ic">📋</div>
           <div><div class="tt">技巧速查卡</div><div class="ds">关联词标志词、常错词义辨析、主旨结构模型、细节陷阱清单、排序三步法——考前最后过一遍</div></div>
@@ -495,7 +517,8 @@
       if (act === 'study-finish') { STUDY.finish(); return; }
       if (act === 'study-quit') { STUDY.quit(); return; }
       if (act === 'study-reset') {
-        if (confirm('确定要清空全部 300 条的记忆进度吗？所有复习安排会被重置，此操作不可撤销。')) STUDY.reset();
+        const n = (window.YY_DECK || []).length;
+        if (confirm(`确定要清空全部 ${n} 条的记忆进度吗？所有复习安排会被重置，此操作不可撤销。`)) STUDY.reset();
         return;
       }
       return;

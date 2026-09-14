@@ -66,12 +66,12 @@
     const hasWork = ov.pendingTotal > 0;
     const ctaText = hasWork
       ? `▶ 开始今日学习 · ${ov.dueCount} 复习${ov.newCount ? ` + ${ov.newCount} 新学` : ''}`
-      : (ov.freshCount > 0 ? '✓ 今日任务已完成，可继续加练' : '🎉 全部 300 条已进入复习循环');
+      : (ov.freshCount > 0 ? '✓ 今日任务已完成，可继续加练' : `🎉 全部 ${ov.total} 条已进入复习循环`);
 
     view.innerHTML = `
       <div class="crumbs" data-act="nav" data-h="#/">← 返回课程表</div>
       <div class="ch-head"><h1>📇 每日成语 · 易混词</h1></div>
-      <div class="ch-oneline">300 条高频词条按 <b>SM-2 间隔重复</b> 调度 —— 到期的先复习，再学当天的新词条。</div>
+      <div class="ch-oneline">共 <b>${ov.total}</b> 条高频词条，按 <b>SM-2 间隔重复</b> 调度 —— 到期的先复习，再学当天的新词条。</div>
 
       <div class="ov-card">
         <div class="ov-ring">${ring}<div class="v">${ov.progress}%</div></div>
@@ -105,7 +105,7 @@
         </div>
         <div class="ch-row" data-act="study-quota" data-d="5">
           <div class="ic">➕</div>
-          <div><div class="tt">增加每日新学</div><div class="ds">建议 10~20 条；300 条约 1 个月过完一轮</div></div>
+          <div><div class="tt">增加每日新学</div><div class="ds">建议 10~20 条；${ov.total} 条约 ${Math.max(1, Math.round(ov.total / 15))} 天过完一轮</div></div>
           <div class="meta"></div><div class="arr">+5</div>
         </div>
         <div class="ch-row" data-act="study-preview" data-g="__all__">
@@ -287,7 +287,7 @@
         <div class="st-done-meta mini">
           今日累计：复习 <b>${ov.reviewsToday}</b> 条 · 新学 <b>${ov.newLearnedToday}</b> 条
           ${ov.streak > 1 ? ` · 🔥 已连续学习 <b>${ov.streak}</b> 天` : ''}
-          <br>全部 300 条进度 <b>${ov.learnedCount}</b> / ${ov.total}（${ov.progress}%）
+          <br>全部 ${ov.total} 条进度 <b>${ov.learnedCount}</b> / ${ov.total}（${ov.progress}%）
           ${ov.dueCount ? `　·　仍有 <b>${ov.dueCount}</b> 条到期未复习` : ''}
         </div>
         <div class="st-done-btns">

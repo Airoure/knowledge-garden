@@ -56,9 +56,18 @@
   function startQuiz(cfg) {
     // cfg: {courseId, level('warm'|'real'), pool, count, mode('practice'|'exam'|'flash'), flashKind, title}
     const list = [];
+    const seen = new Set();
+    // 同一组练习内避免重复出同一道题（题库上限不足时才允许重复，如自测 10 题 / 20 个平方数）
+    const keyOf = (q) => `${q.typeId}|${stripHtml(q.stem)}|${(q.options || []).map((o) => o.text || o.htmlF || '').join(',')}`;
     for (let i = 0; i < cfg.count; i++) {
       const entry = weightedPick(cfg.pool);
-      list.push(GEN.gen(entry.id, cfg.level, entry.hint));
+      let q = GEN.gen(entry.id, cfg.level, entry.hint), key = keyOf(q), tries = 0;
+      while (seen.has(key) && tries++ < 40) {
+        q = GEN.gen(entry.id, cfg.level, entry.hint);
+        key = keyOf(q);
+      }
+      seen.add(key);
+      list.push(q);
     }
     stopQuizTimers();
     quiz = {
@@ -457,12 +466,19 @@
             </div>`).join('')}
           <p class="mini" style="text-align:center;margin-top:10px">记忆主线：蓝区秒懂 → 黄区等差 → 绿区互换 → 红区加和 20。<br>考场上 8%～17% 区间（红、绿、黄三区）出现频率最高。</p>
         </div>`
-      : `<div class="tier-label">11 ～ 32 的平方（资料分析开方估算常用）</div>
-         <div class="sq-table">${Array.from({ length: 22 }, (_, i) => {
+      : `<div class="tier-label">11 ～ 30 的平方（考公必背区间，资料分析开方估算常用）</div>
+         <div class="sq-table">${Array.from({ length: 20 }, (_, i) => {
            const n = i + 11;
            return `<div class="kcell"><span class="f">${n}</span><span class="p">${n * n}</span></div>`;
          }).join('')}</div>`;
     const cs = isH ? store.cards.h : store.cards.p;
+    const testBtns = isH
+      ? `<button class="btn primary" data-act="st-start" data-l="warm">▸ 基础自测</button>
+         <button class="btn" data-act="st-start" data-l="real">▸ 全表自测（含第三档）</button>`
+      : `<button class="btn primary" data-act="st-start" data-l="warm">▸ 开始自测 · 11～30（20 个平方数）</button>`;
+    const desc = isH
+      ? '连答 10 题，每题自动跳下一道。目标是条件反射：<b>看到百分数就想到分数</b>。'
+      : '连答 10 题，每题自动跳下一道。目标是条件反射：<b>看到底数就报出平方</b>。每次抽题不重复。';
     view.innerHTML = `
       <div class="crumbs" data-act="nav" data-h="#/">← 返回课程表</div>
       <div class="ch-head"><h1>📇 速记卡</h1></div>
@@ -473,12 +489,9 @@
       ${tableHtml}
       <div class="selftest">
         <h3>⚡ 限时自测</h3>
-        <div class="desc">连答 10 题，每题自动跳下一道。目标是条件反射：<b>${isH ? '看到百分数就想到分数' : '看到底数就报出平方'}</b>。
+        <div class="desc">${desc}
           历史成绩：${cs.s ? `答对 ${cs.r}/${cs.s}（${Math.round(cs.r / cs.s * 100)}%）` : '暂无'}</div>
-        <div id="st-box">
-          <button class="btn primary" data-act="st-start" data-l="warm">▸ 基础自测</button>
-          <button class="btn" data-act="st-start" data-l="real">▸ 全表自测（含第三档）</button>
-        </div>
+        <div id="st-box">${testBtns}</div>
       </div>`;
   }
 

@@ -572,6 +572,32 @@ em { font-style: normal; color: var(--tx2); font-size: 13.5px; }
 .st-done-meta { line-height: 1.9; margin-bottom: 20px; }
 .st-done-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
+/* ── 顶栏「返回知识花园」按钮 ── */
+.topnav a.nav-home {
+  color: var(--acc); border: 1px solid rgba(56, 189, 248, .35);
+  background: rgba(56, 189, 248, .08); margin-right: 6px;
+}
+.topnav a.nav-home:hover { color: var(--tx); background: rgba(56, 189, 248, .18); }
+
+/* ── 每日复习（背单词模式）· 首页显眼入口 ── */
+.ch-row.daily-row {
+  border-color: rgba(129, 140, 248, .45);
+  background: linear-gradient(120deg, rgba(56, 189, 248, .07), rgba(129, 140, 248, .07));
+}
+.ch-row.daily-row:hover { border-color: var(--acc); }
+.daily-tag {
+  font-size: 11px; font-style: normal; font-weight: 500; margin-left: 8px;
+  padding: 1px 8px; border-radius: 999px; vertical-align: 2px;
+  border: 1px solid rgba(244, 114, 182, .5); color: var(--gold);
+}
+.daily-cta {
+  display: block; text-align: center; margin-top: 10px; cursor: pointer;
+  border: 1px solid var(--line2); border-radius: var(--radius); padding: 13px 20px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, .16), rgba(129, 140, 248, .16));
+  font-weight: 700; font-size: 14.5px; color: var(--tx); transition: .18s;
+}
+.daily-cta:hover { border-color: var(--acc); box-shadow: 0 6px 24px rgba(56, 189, 248, .15); transform: translateY(-1px); }
+
 /* ── 窄屏适配 ── */
 @media (max-width: 620px) {
   .card-word { font-size: 27px; }

@@ -591,7 +591,9 @@
   }
 
   function genPingfang(level) {
-    const n = level === 'warm' ? rnd(11, 20) : rnd(21, 32);
+    // 平方数统一考 11～30（考公必背区间）：不再按难度分段，
+    // 20 个底数保证「一组自测」内基本不撞题。
+    const n = rnd(11, 30);
     const sq = n * n;
     const res = numericOpts(sq, { dp: 0,
       extra: [(n + 1) * (n + 1), (n - 1) * (n - 1), sq + 2 * n] });
