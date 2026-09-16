@@ -1,13 +1,22 @@
+import { useState } from 'react'
 import { Card } from '@/components/shared/Card'
 import {
   OPERATION_LIST,
   getDifficultyOptions,
+  shouldShowDifficulty,
   DIRECTION_OPTIONS,
   COUNT_OPTIONS,
   TIME_OPTIONS,
   BONUS_OPTIONS,
   PENALTY_OPTIONS,
 } from '@/utils/questionGenerator'
+import {
+  loadPresets,
+  savePresets,
+  makePreset,
+  MAX_PRESETS,
+  type ConfigPreset,
+} from '@/services/configStorage'
 import type { PracticeConfig, Operation, Difficulty, GameMode, QuestionDirection } from '@/types'
 import styles from './SetupPanel.module.css'
 
@@ -22,10 +31,34 @@ interface SetupPanelProps {
 /**
  * 设置面板
  *
- * 四段式配置：模式选择、运算类型（多选）、难度等级（单选）、
+ * 顶部为自定义出题方案（一键套用整套配置），
+ * 下方为四段式配置：模式选择、运算类型（多选）、难度等级（单选）、
  * 题目数量（固定模式）或时间设置（无尽模式）
  */
 export function SetupPanel({ config, onConfigChange, onStart, onShowHistory, onShowGaozhao }: SetupPanelProps) {
+  // 方案列表存在 localStorage，每次进入设置页重新读取
+  const [presets, setPresets] = useState<ConfigPreset[]>(() => loadPresets())
+
+  const updatePresets = (next: ConfigPreset[]) => {
+    setPresets(next)
+    savePresets(next)
+  }
+
+  const applyPreset = (preset: ConfigPreset) => {
+    onConfigChange(preset.config)
+  }
+
+  const saveCurrentPreset = () => {
+    // 与已有方案完全相同时不重复保存
+    if (presets.some((p) => JSON.stringify(p.config) === JSON.stringify(config))) return
+    // 超出上限时挤掉最早保存的方案
+    updatePresets([...presets, makePreset(config)].slice(-MAX_PRESETS))
+  }
+
+  const removePreset = (id: string) => {
+    updatePresets(presets.filter((p) => p.id !== id))
+  }
+
   const setMode = (mode: GameMode) => {
     onConfigChange({ ...config, mode })
   }
@@ -60,6 +93,49 @@ export function SetupPanel({ config, onConfigChange, onStart, onShowHistory, onS
 
   return (
     <Card className={styles.setupPanel}>
+      {/* 自定义出题方案（保存 / 一键套用整套配置，含模式） */}
+      <div className={styles.sectionLabel}>
+        出题方案
+        <span className={styles.sectionNumber}>00 / PRESET</span>
+      </div>
+      <div className={styles.presetRow}>
+        {presets.map((preset) => {
+          const active = JSON.stringify(preset.config) === JSON.stringify(config)
+          return (
+            <span
+              key={preset.id}
+              className={`${styles.presetChip} ${active ? styles.presetChipActive : ''}`}
+            >
+              <button
+                className={styles.presetApply}
+                onClick={() => applyPreset(preset)}
+                type="button"
+                title="套用该方案"
+              >
+                {preset.name}
+              </button>
+              <button
+                className={styles.presetDelete}
+                onClick={() => removePreset(preset.id)}
+                type="button"
+                title="删除该方案"
+                aria-label={`删除方案 ${preset.name}`}
+              >
+                ×
+              </button>
+            </span>
+          )
+        })}
+        <button className={styles.presetAdd} onClick={saveCurrentPreset} type="button" title="把当前设置存为方案">
+          ＋ 存当前
+        </button>
+      </div>
+      {presets.length === 0 && (
+        <p className={styles.presetHint}>
+          把常用的题型组合存成方案，下次一键套用（最多 {MAX_PRESETS} 个）
+        </p>
+      )}
+
       {/* 模式选择 */}
       <div className={styles.sectionLabel}>
         练习模式
@@ -118,26 +194,34 @@ export function SetupPanel({ config, onConfigChange, onStart, onShowHistory, onS
           </button>
         ))}
       </div>
+      {config.operations.includes('square') && (
+        <p className={styles.opNote}>平方数固定练 11 ~ 30（20 个底数，一组练习内不重复）</p>
+      )}
 
-      {/* 难度选择（文案随所选运算变化，平方数/大九九按基数范围描述） */}
-      <div className={styles.sectionLabel}>
-        难度等级
-        <span className={styles.sectionNumber}>03 / DIFFICULTY</span>
-      </div>
-      <div className={styles.diffGrid}>
-        {getDifficultyOptions(config.operations).map(({ diff, title, desc, example }) => (
-          <button
-            key={diff}
-            className={`${styles.diffBtn} ${config.difficulty === diff ? styles.active : ''}`}
-            onClick={() => setDifficulty(diff)}
-            type="button"
-          >
-            <div className={styles.diffTitle}>{title}</div>
-            <div className={styles.diffDesc}>{desc}</div>
-            <div className={styles.diffExample}>{example}</div>
-          </button>
-        ))}
-      </div>
+      {/* 难度选择（文案随所选运算变化，大九九按基数范围描述；
+          平方数固定 11~30 与难度无关，只选平方数时整块隐藏） */}
+      {shouldShowDifficulty(config.operations) && (
+        <>
+          <div className={styles.sectionLabel}>
+            难度等级
+            <span className={styles.sectionNumber}>03 / DIFFICULTY</span>
+          </div>
+          <div className={styles.diffGrid}>
+            {getDifficultyOptions(config.operations).map(({ diff, title, desc, example }) => (
+              <button
+                key={diff}
+                className={`${styles.diffBtn} ${config.difficulty === diff ? styles.active : ''}`}
+                onClick={() => setDifficulty(diff)}
+                type="button"
+              >
+                <div className={styles.diffTitle}>{title}</div>
+                <div className={styles.diffDesc}>{desc}</div>
+                <div className={styles.diffExample}>{example}</div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* 出题方向（仅平方数 / 大九九模块生效） */}
       {(config.operations.includes('square') || config.operations.includes('mul19')) && (

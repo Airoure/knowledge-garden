@@ -62,8 +62,9 @@ function generateOne(config: BattleConfig): Question {
       a = b * answer
       break
     case 'square': {
-      // 平方数：入门练 2~15，进阶练 16~25，覆盖考公必背的 1~25 平方数
-      const n = isEasy ? randInt(2, 15) : randInt(16, 25)
+      // 平方数：固定考 11~30（考公必背区间），不再按难度分段，
+      // 20 个底数可保证一组练习内基本不重复
+      const n = randInt(11, 30)
       if (isReverseQuestion(config.direction)) {
         // 逆向：?² = n²，求 n。a 为答案（根），b 为展示的平方值
         return { a: n, b: n * n, op, symbol: '²', answer: n, reversed: true }
@@ -92,18 +93,48 @@ function generateOne(config: BattleConfig): Question {
   return { a, b, op, symbol, answer }
 }
 
-/** 批量生成题目（避免连续重复） */
-export function generateQuestions(config: BattleConfig): Question[] {
-  const questions: Question[] = []
-  let last: Question | null = null
+/**
+ * 题目指纹：用于判断一组练习内是否出现同一道题
+ *
+ * 大九九的 x×y 与 y×x 视为同一道题，故按大小排序后取指纹。
+ */
+function questionKey(q: Question): string {
+  const lo = q.op === 'mul19' ? Math.min(q.a, q.b) : q.a
+  const hi = q.op === 'mul19' ? Math.max(q.a, q.b) : q.b
+  return `${q.op}:${lo}:${hi}:${q.reversed ? 'r' : 'f'}`
+}
 
-  for (let i = 0; i < config.totalCount; i++) {
-    let q: Question
-    do {
-      q = generateOne(config)
-    } while (last && q.a === last.a && q.b === last.b && q.op === last.op)
+/**
+ * 批量生成题目（一组练习内尽量不重复）
+ *
+ * 先抽一批候选，遇到组内已出现过的题就丢弃——文库上限够时整组题目不会重复；
+ * 上限不足时（如平方数只有 20 个底数却要出 50 题）再补足题量，此时才允许重复。
+ * 最后兜底保证不与上一题完全相同（保持原有「避免连续重复」的行为）。
+ */
+export function generateQuestions(config: BattleConfig): Question[] {
+  const target = config.totalCount
+  const questions: Question[] = []
+  const used = new Set<string>()
+  const maxDraws = Math.max(target * 20, target + 60)
+  const same = (x: Question, y: Question) => x.a === y.a && x.b === y.b && x.op === y.op
+
+  for (let i = 0; i < maxDraws && questions.length < target; i++) {
+    const q = generateOne(config)
+    const key = questionKey(q)
+    if (used.has(key)) continue
+    used.add(key)
     questions.push(q)
-    last = q
+  }
+  while (questions.length < target) questions.push(generateOne(config))
+  // 与上一题撞题时，与后面不同的题换位
+  for (let i = 1; i < questions.length; i++) {
+    if (!same(questions[i], questions[i - 1])) continue
+    const j = questions.findIndex((q, k) => k > i && !same(q, questions[i - 1]))
+    if (j > 0) {
+      const t = questions[i]
+      questions[i] = questions[j]
+      questions[j] = t
+    }
   }
 
   return questions

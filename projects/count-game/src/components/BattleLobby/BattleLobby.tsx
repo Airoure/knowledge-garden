@@ -3,6 +3,7 @@ import { Card } from '@/components/shared/Card'
 import {
   OPERATION_LIST,
   getDifficultyOptions,
+  shouldShowDifficulty,
   DIRECTION_OPTIONS,
   COUNT_OPTIONS,
 } from '@/utils/questionGenerator'
@@ -118,22 +119,30 @@ export function BattleLobby({ onCreateRoom, onJoinRoom, onBack, error, onClearEr
               </button>
             ))}
           </div>
+          {operations.includes('square') && (
+            <p className={styles.opNote}>平方数固定练 11 ~ 30（20 个底数，一组练习内不重复）</p>
+          )}
 
-          {/* 难度（文案随所选运算变化，平方数/大九九按基数范围描述） */}
-          <div className={styles.sectionLabel}>难度等级</div>
-          <div className={styles.diffGrid}>
-            {getDifficultyOptions(operations).map(({ diff, title, desc }) => (
-              <button
-                key={diff}
-                className={`${styles.diffBtn} ${difficulty === diff ? styles.diffActive : ''}`}
-                onClick={() => setDifficulty(diff)}
-                type="button"
-              >
-                <div className={styles.diffTitle}>{title}</div>
-                <div className={styles.diffDesc}>{desc}</div>
-              </button>
-            ))}
-          </div>
+          {/* 难度（文案随所选运算变化，大九九按基数范围描述；
+              平方数固定 11~30 与难度无关，只选平方数时整块隐藏） */}
+          {shouldShowDifficulty(operations) && (
+            <>
+              <div className={styles.sectionLabel}>难度等级</div>
+              <div className={styles.diffGrid}>
+                {getDifficultyOptions(operations).map(({ diff, title, desc }) => (
+                  <button
+                    key={diff}
+                    className={`${styles.diffBtn} ${difficulty === diff ? styles.diffActive : ''}`}
+                    onClick={() => setDifficulty(diff)}
+                    type="button"
+                  >
+                    <div className={styles.diffTitle}>{title}</div>
+                    <div className={styles.diffDesc}>{desc}</div>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           {/* 出题方向（仅平方数 / 大九九模块生效） */}
           {(operations.includes('square') || operations.includes('mul19')) && (

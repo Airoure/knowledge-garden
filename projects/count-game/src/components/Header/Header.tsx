@@ -9,11 +9,14 @@ interface HeaderProps {
 
 /**
  * 顶部标题区
- * 展示品牌名称「数感道场」与副标题，登录后右上角显示用户名与登出
+ * 展示品牌名称「数感道场」与副标题，左上角返回知识花园，登录后右上角显示用户名与登出
  */
 export function Header({ username, onLogout }: HeaderProps) {
   return (
     <header className={styles.header}>
+      <a className={styles.homeLink} href="/" title="返回知识花园首页">
+        🏠 知识花园
+      </a>
       <div className={styles.ornament}>
         <span className={styles.ornamentLine} />
         <span className={styles.ornamentDot} />

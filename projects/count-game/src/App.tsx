@@ -17,23 +17,10 @@ import { useBattle } from '@/hooks/useBattle'
 import { useBackgroundMusic } from '@/hooks/useBackgroundMusic'
 import { useAuth } from '@/hooks/useAuth'
 import { saveRecord } from '@/services/record'
+import { DEFAULT_CONFIG, loadLastConfig, saveLastConfig } from '@/services/configStorage'
 import type { PracticeConfig, Phase } from '@/types'
 import styles from './App.module.css'
 import bgMusic from '../sound/bg.mp3'
-
-/** 默认练习配置 */
-const DEFAULT_CONFIG: PracticeConfig = {
-  mode: 'fixed',
-  operations: ['add', 'sub', 'mul', 'div'],
-  difficulty: 'easy',
-  direction: 'forward',
-  totalCount: 20,
-  endless: {
-    initialTime: 60,
-    correctBonus: 3,
-    wrongPenalty: 3,
-  },
-}
 
 /**
  * 应用根组件
@@ -43,7 +30,8 @@ const DEFAULT_CONFIG: PracticeConfig = {
  *          对战模式：setup → battle-lobby → battle-practice → battle-result
  */
 export default function App() {
-  const [config, setConfig] = useState<PracticeConfig>(DEFAULT_CONFIG)
+  // 上次使用的配置持久化在 localStorage，刷新 / 重新打开后自动恢复
+  const [config, setConfigState] = useState<PracticeConfig>(() => loadLastConfig() ?? DEFAULT_CONFIG)
   const [battleEntry, setBattleEntry] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [showGaozhao, setShowGaozhao] = useState(false)
@@ -51,6 +39,12 @@ export default function App() {
   const battle = useBattle()
   const { isMuted, toggleMute } = useBackgroundMusic(bgMusic)
   const auth = useAuth()
+
+  // 更新配置并同步到 localStorage（记住上次设置）
+  const setConfig = (next: PracticeConfig) => {
+    setConfigState(next)
+    saveLastConfig(next)
+  }
 
   // 用于防止同一次结果重复上报
   const practiceRecordedRef = useRef(false)

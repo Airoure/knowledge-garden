@@ -138,3 +138,33 @@
     margin-top: 0.8rem;
   }
 }
+
+/* 左上角「返回知识花园」入口 */
+.homeLink {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--ink-soft);
+  border-radius: 6px;
+  opacity: 0.75;
+  transition: all 0.25s ease;
+}
+
+.homeLink:hover {
+  color: var(--vermilion);
+  border-color: var(--vermilion);
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .homeLink {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}

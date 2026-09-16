@@ -53,15 +53,11 @@ export const DIFFICULTY_LIST: DifficultyMeta[] = [
   DIFFICULTY_META.hard,
 ]
 
-/** 各运算组的难度文案：四则合并为一组，平方数 / 大九九按基数范围表述 */
+/** 各运算组的难度文案：四则合并为一组，大九九按基数范围表述（平方数固定 11~30，不参与难度分档） */
 const DIFFICULTY_GROUP_META = {
   basic: {
     easy: { desc: '四则 · 一位数与一位数', example: '7 + 8 = ?' },
     hard: { desc: '四则 · 两位数与两位数', example: '36 + 47 = ?' },
-  },
-  square: {
-    easy: { desc: '平方数 · 2 ~ 15', example: '12² = ?' },
-    hard: { desc: '平方数 · 16 ~ 25', example: '23² = ?' },
   },
   mul19: {
     easy: { desc: '大九九 · 11 ~ 15 互乘', example: '13 × 14 = ?' },
@@ -72,16 +68,18 @@ const DIFFICULTY_GROUP_META = {
 /**
  * 根据所选运算生成难度选项文案
  *
- * 平方数 / 大九九的难度含义是基数范围而非位数，
- * 文案按所选运算动态生成，避免"一位数 / 两位数"的描述张冠李戴。
+ * 大九九的难度含义是基数范围而非位数，文案按所选运算动态生成，
+ * 避免"一位数 / 两位数"的描述张冠李戴。
  * 纯四则时维持原有文案不变；混合选择时逐组列出说明。
+ *
+ * 平方数已固定考 11~30，与难度无关，因此不出现在难度文案里；
+ * 若只选了平方数，难度区整体不展示（见 shouldShowDifficulty）。
  */
 export function getDifficultyOptions(operations: Operation[]): DifficultyMeta[] {
   const groups: Array<keyof typeof DIFFICULTY_GROUP_META> = []
   if (operations.some((op) => op === 'add' || op === 'sub' || op === 'mul' || op === 'div')) {
     groups.push('basic')
   }
-  if (operations.includes('square')) groups.push('square')
   if (operations.includes('mul19')) groups.push('mul19')
 
   if (groups.length === 0 || (groups.length === 1 && groups[0] === 'basic')) {
@@ -94,6 +92,16 @@ export function getDifficultyOptions(operations: Operation[]): DifficultyMeta[] 
     desc: groups.map((g) => DIFFICULTY_GROUP_META[g][diff].desc).join('；'),
     example: DIFFICULTY_GROUP_META[groups[0]][diff].example,
   }))
+}
+
+/**
+ * 是否需要展示「难度等级」选择
+ *
+ * 平方数已固定考 11~30（与难度无关），只选平方数时该选项没有意义，直接隐藏；
+ * 与四则 / 大九九混合选择时仍需展示（难度对它们依然生效）。
+ */
+export function shouldShowDifficulty(operations: Operation[]): boolean {
+  return operations.some((op) => op !== 'square')
 }
 
 /** 固定模式题量选项 */
@@ -179,8 +187,9 @@ function generateOne(config: PracticeConfig): Question {
       a = b * answer
       break
     case 'square': {
-      // 平方数：入门练 2~15，进阶练 16~25，覆盖考公必背的 1~25 平方数
-      const n = isEasy ? randInt(2, 15) : randInt(16, 25)
+      // 平方数：固定考 11~30（考公必背区间），不再按难度分段，
+      // 20 个底数可保证一组练习内基本不重复
+      const n = randInt(11, 30)
       if (isReverseQuestion(config.direction)) {
         // 逆向：?² = n²，求 n。a 为答案（根），b 为展示的平方值
         return { a: n, b: n * n, op, symbol: '²', answer: n, reversed: true }
@@ -236,16 +245,48 @@ export function generateSingleQuestion(
 }
 
 /**
- * 批量生成题目（避免连续重复）
+ * 题目指纹：用于判断一组练习内是否出现同一道题
+ *
+ * 大九九的 x×y 与 y×x 视为同一道题，故按大小排序后取指纹。
+ */
+function questionKey(q: Question): string {
+  const lo = q.op === 'mul19' ? Math.min(q.a, q.b) : q.a
+  const hi = q.op === 'mul19' ? Math.max(q.a, q.b) : q.b
+  return `${q.op}:${lo}:${hi}:${q.reversed ? 'r' : 'f'}`
+}
+
+/**
+ * 批量生成题目（一组练习内尽量不重复）
+ *
+ * 先抽一批候选，遇到组内已出现过的题就丢弃——文库上限够时整组题目不会重复；
+ * 上限不足时（如平方数只有 20 个底数却要出 50 题）再补足题量，此时才允许重复。
+ * 最后兜底保证不与上一题完全相同（保持原有「避免连续重复」的行为）。
  */
 export function generateQuestions(config: PracticeConfig): Question[] {
+  const target = config.totalCount
   const questions: Question[] = []
-  let last: Question | null = null
+  const used = new Set<string>()
+  const maxDraws = Math.max(target * 20, target + 60)
 
-  for (let i = 0; i < config.totalCount; i++) {
-    const q = generateSingleQuestion(config, last)
+  for (let i = 0; i < maxDraws && questions.length < target; i++) {
+    const q = generateOne(config)
+    const key = questionKey(q)
+    if (used.has(key)) continue
+    used.add(key)
     questions.push(q)
-    last = q
+  }
+  while (questions.length < target) {
+    questions.push(generateSingleQuestion(config, questions[questions.length - 1]))
+  }
+  // 与上一题撞题时，与后面不同的题换位
+  for (let i = 1; i < questions.length; i++) {
+    if (questionKey(questions[i]) !== questionKey(questions[i - 1])) continue
+    const j = questions.findIndex((q, k) => k > i && questionKey(q) !== questionKey(questions[i - 1]))
+    if (j > 0) {
+      const t = questions[i]
+      questions[i] = questions[j]
+      questions[j] = t
+    }
   }
 
   return questions

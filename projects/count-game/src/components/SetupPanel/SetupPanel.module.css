@@ -346,3 +346,120 @@
     min-width: 0;
   }
 }
+
+/* ===== 运算附加说明（平方数固定范围提示）===== */
+.opNote {
+  margin: -1.1rem 0 1.6rem;
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  color: var(--vermilion);
+  opacity: 0.85;
+}
+
+/* ===== 自定义出题方案 ===== */
+.presetRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.8rem;
+}
+
+.presetChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--paper);
+  border: 1.5px solid var(--mist);
+  border-radius: 999px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.presetChip:hover {
+  border-color: var(--vermilion);
+}
+
+.presetApply {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.presetChip:hover .presetApply {
+  color: var(--vermilion);
+}
+
+.presetChipActive {
+  border-color: var(--vermilion);
+  background: var(--vermilion);
+  box-shadow: 0 4px 16px rgba(200, 57, 43, 0.3);
+}
+
+.presetChipActive .presetApply {
+  color: var(--paper-light);
+}
+
+.presetDelete {
+  border: none;
+  background: none;
+  padding: 0 0.2rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+.presetDelete:hover {
+  opacity: 1;
+  color: var(--vermilion);
+}
+
+.presetChipActive .presetDelete {
+  color: var(--paper-light);
+  opacity: 0.7;
+}
+
+.presetChipActive .presetDelete:hover {
+  color: var(--paper-light);
+  opacity: 1;
+}
+
+.presetAdd {
+  padding: 0.35rem 0.9rem;
+  background: transparent;
+  border: 1.5px dashed var(--mist);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.presetAdd:hover {
+  border-color: var(--vermilion);
+  color: var(--vermilion);
+}
+
+.presetHint {
+  margin: -1.2rem 0 1.6rem;
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  opacity: 0.6;
+}
