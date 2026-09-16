@@ -12,6 +12,7 @@
 
 .fracBar {
   align-self: stretch;
+  min-width: 1.2em;
   height: 0.06em;
   min-height: 2px;
   background: currentColor;

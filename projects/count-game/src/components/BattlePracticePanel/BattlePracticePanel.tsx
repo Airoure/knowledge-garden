@@ -174,13 +174,13 @@ export function BattlePracticePanel({
       </span>
     ) : question.op === 'pct' ? (
       reversed ? (
-        <PercentNumber className={styles.num}>{question.b}</PercentNumber>
+        <span className={styles.num}>
+          <PercentNumber>{question.b}</PercentNumber>
+        </span>
       ) : (
-        <Fraction
-          className={styles.num}
-          numerator={question.a}
-          denominator={question.b}
-        />
+        <span className={styles.num}>
+          <Fraction numerator={question.a} denominator={question.b} />
+        </span>
       )
     ) : reversed ? (
       <>
@@ -206,7 +206,9 @@ export function BattlePracticePanel({
       )}
     </span>
   ) : question.op === 'pct' ? (
-    <PercentNumber className={styles.num}>?</PercentNumber>
+    <span className={styles.num}>
+      <PercentNumber>?</PercentNumber>
+    </span>
   ) : (
     <span className={styles.num}>?</span>
   )

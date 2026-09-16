@@ -225,16 +225,13 @@ export function PracticePanel({
       </span>
     ) : currentQuestion.op === 'pct' ? (
       reversed ? (
-        <PercentNumber key={`pctr-${questionKey}`} className={styles.num}>
-          {currentQuestion.b}
-        </PercentNumber>
+        <span className={styles.num} key={`pctr-${questionKey}`}>
+          <PercentNumber>{currentQuestion.b}</PercentNumber>
+        </span>
       ) : (
-        <Fraction
-          key={`pctf-${questionKey}`}
-          className={styles.num}
-          numerator={currentQuestion.a}
-          denominator={currentQuestion.b}
-        />
+        <span className={styles.num} key={`pctf-${questionKey}`}>
+          <Fraction numerator={currentQuestion.a} denominator={currentQuestion.b} />
+        </span>
       )
     ) : reversed ? (
       <>
@@ -268,9 +265,9 @@ export function PracticePanel({
       )}
     </span>
   ) : currentQuestion.op === 'pct' ? (
-    <PercentNumber key={`resp-${questionKey}`} className={styles.num}>
-      ?
-    </PercentNumber>
+    <span className={styles.num} key={`resp-${questionKey}`}>
+      <PercentNumber>?</PercentNumber>
+    </span>
   ) : (
     <span className={styles.num}>?</span>
   )
