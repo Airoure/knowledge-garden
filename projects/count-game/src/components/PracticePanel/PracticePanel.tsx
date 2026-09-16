@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from '@/components/shared/Card'
 import { Keypad } from '@/components/shared/Keypad'
 import { useSound } from '@/hooks/useSound'
-import { formatTime, formatQuestionNumber } from '@/utils/format'
+import { formatTime, formatQuestionNumber, sanitizeDecimalInput, formatCorrectAnswer } from '@/utils/format'
+import { isAnswerMatch } from '@/utils/questionGenerator'
+import { Fraction, PercentNumber } from '@/components/shared/MathDisplay'
 import { isTouchDevice } from '@/utils/touch'
 import type { Question, AnswerStatus, GameMode } from '@/types'
 import styles from './PracticePanel.module.css'
@@ -68,6 +70,11 @@ export function PracticePanel({
   // 题目切换 key：固定模式用 currentIndex，无尽模式用 totalAnswered
   const questionKey = isEndless ? totalAnswered : currentIndex
 
+  // 正向给数求结果（1/7 = ?%），逆向给结果求数（14.3% = 1/?）
+  const reversed = currentQuestion.reversed === true
+  // 百分数正向题答案带小数（如 14.3），需要小数输入
+  const needDecimal = currentQuestion.op === 'pct' && !reversed
+
   // 题目切换时清空输入并聚焦
   useEffect(() => {
     setInputValue('')
@@ -107,7 +114,7 @@ export function PracticePanel({
       return
     }
 
-    const userAns = parseInt(inputValue, 10)
+    const userAns = parseFloat(inputValue)
     if (Number.isNaN(userAns)) {
       inputRef.current?.focus()
       return
@@ -142,8 +149,8 @@ export function PracticePanel({
   const applyValue = (val: string) => {
     setInputValue(val)
     if (!isAnswered) {
-      const userAns = parseInt(val, 10)
-      if (!Number.isNaN(userAns) && userAns === currentQuestion.answer) {
+      const userAns = parseFloat(val)
+      if (!Number.isNaN(userAns) && isAnswerMatch(userAns, currentQuestion.answer)) {
         onSubmit(userAns)
         timeoutRef.current = setTimeout(() => {
           timeoutRef.current = null
@@ -154,12 +161,14 @@ export function PracticePanel({
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    applyValue(e.target.value)
+    applyValue(needDecimal ? sanitizeDecimalInput(e.target.value) : e.target.value)
   }
 
   // ===== 移动端内置数字键盘 =====
   const handleDigit = (digit: string) => {
     if (isAnswered) return
+    // 小数点只能有一个
+    if (digit === '.' && inputValue.includes('.')) return
     const next = inputValue + digit
     if (next.length > 6) return
     applyValue(next)
@@ -193,7 +202,7 @@ export function PracticePanel({
     }
     feedbackClass = `${styles.feedback} ${styles.show} ${styles.correct}`
   } else if (answerStatus === 'wrong') {
-    feedbackText = `✗ 正确答案：${currentQuestion.answer}`
+    feedbackText = `✗ 正确答案：${formatCorrectAnswer(currentQuestion)}`
     if (isEndless && wrongPenalty > 0) {
       feedbackText += `  −${wrongPenalty}秒`
     }
@@ -207,14 +216,26 @@ export function PracticePanel({
     answerStatus === 'correct' ? styles.inputCorrect : ''
   } ${answerStatus === 'wrong' ? styles.inputWrong : ''}`
 
-  // 题目表达式与结果：正向给数求结果（12² = ?），逆向给结果求数（?² = 144）
-  const reversed = currentQuestion.reversed === true
+  // 题目表达式与结果：正向给数求结果（1/7 = ?%），逆向给结果求数（14.3% = 1/?）
   const questionExpr =
     currentQuestion.op === 'square' ? (
       <span className={styles.num} key={`sq-${questionKey}`}>
         {reversed ? '?' : currentQuestion.a}
         <sup className={styles.squareExp}>2</sup>
       </span>
+    ) : currentQuestion.op === 'pct' ? (
+      reversed ? (
+        <PercentNumber key={`pctr-${questionKey}`} className={styles.num}>
+          {currentQuestion.b}
+        </PercentNumber>
+      ) : (
+        <Fraction
+          key={`pctf-${questionKey}`}
+          className={styles.num}
+          numerator={currentQuestion.a}
+          denominator={currentQuestion.b}
+        />
+      )
     ) : reversed ? (
       <>
         <span className={styles.num} key={`q-${questionKey}`}>
@@ -238,10 +259,18 @@ export function PracticePanel({
     )
   const questionResult = reversed ? (
     <span className={styles.num} key={`res-${questionKey}`}>
-      {currentQuestion.op === 'square'
-        ? currentQuestion.b
-        : currentQuestion.a * currentQuestion.b}
+      {currentQuestion.op === 'square' ? (
+        currentQuestion.b
+      ) : currentQuestion.op === 'pct' ? (
+        <Fraction numerator={1} denominator="?" />
+      ) : (
+        currentQuestion.a * currentQuestion.b
+      )}
     </span>
+  ) : currentQuestion.op === 'pct' ? (
+    <PercentNumber key={`resp-${questionKey}`} className={styles.num}>
+      ?
+    </PercentNumber>
   ) : (
     <span className={styles.num}>?</span>
   )
@@ -319,7 +348,7 @@ export function PracticePanel({
       <div className={styles.answerRow}>
         <input
           ref={inputRef}
-          type="number"
+          type={needDecimal ? 'text' : 'number'}
           className={inputClass}
           value={inputValue}
           onChange={handleInputChange}
@@ -327,7 +356,7 @@ export function PracticePanel({
           placeholder={isTouch ? '点下方键盘输入' : '输入答案'}
           autoComplete="off"
           disabled={isAnswered}
-          inputMode={isTouch ? 'none' : undefined}
+          inputMode={isTouch ? 'none' : needDecimal ? 'decimal' : undefined}
           readOnly={isTouch}
         />
       </div>
@@ -340,6 +369,7 @@ export function PracticePanel({
           onBackspace={handleBackspace}
           onClear={handleClear}
           onConfirm={handleSubmit}
+          showDecimal={needDecimal}
         />
       )}
 

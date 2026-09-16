@@ -50,6 +50,12 @@
   box-shadow: 0 2px 0 var(--vermilion-deep);
 }
 
+/* 小数点模式下确定键让出一列给 ⌫（[⌫][确定][确定]），
+   需在 .confirmKey 之后声明以覆盖其 grid-column */
+.confirmKeyWide {
+  grid-column: 2 / -1;
+}
+
 .confirmKey:active {
   background: var(--vermilion-deep);
   box-shadow: none;

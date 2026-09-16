@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from '@/components/shared/Card'
 import { Keypad } from '@/components/shared/Keypad'
 import { useSound } from '@/hooks/useSound'
-import { formatTime } from '@/utils/format'
+import { formatTime, sanitizeDecimalInput, formatCorrectAnswer } from '@/utils/format'
+import { isAnswerMatch } from '@/utils/questionGenerator'
+import { Fraction, PercentNumber } from '@/components/shared/MathDisplay'
 import { isTouchDevice } from '@/utils/touch'
 import type { Question, AnswerStatus, OpponentProgress } from '@/types'
 import { BATTLE_WRONG_PENALTY } from '@/types'
@@ -50,6 +52,11 @@ export function BattlePracticePanel({
   const playCorrect = useSound(correctSound)
   const playWrong = useSound(wrongSound)
 
+  // 正向给数求结果（1/7 = ?%），逆向给结果求数（14.3% = 1/?）
+  const reversed = question.reversed === true
+  // 百分数正向题答案带小数（如 14.3），需要小数输入
+  const needDecimal = question.op === 'pct' && !reversed
+
   // 正计时（每秒更新）
   useEffect(() => {
     const timer = setInterval(() => {
@@ -77,7 +84,7 @@ export function BattlePracticePanel({
 
   const handleSubmit = () => {
     if (isAnswered) return
-    const userAns = parseInt(inputValue, 10)
+    const userAns = parseFloat(inputValue)
     if (Number.isNaN(userAns)) {
       inputRef.current?.focus()
       return
@@ -105,20 +112,22 @@ export function BattlePracticePanel({
   const applyValue = (val: string) => {
     setInputValue(val)
     if (!isAnswered) {
-      const userAns = parseInt(val, 10)
-      if (!Number.isNaN(userAns) && userAns === question.answer) {
+      const userAns = parseFloat(val)
+      if (!Number.isNaN(userAns) && isAnswerMatch(userAns, question.answer)) {
         onSubmit(userAns)
       }
     }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    applyValue(e.target.value)
+    applyValue(needDecimal ? sanitizeDecimalInput(e.target.value) : e.target.value)
   }
 
   // ===== 移动端内置数字键盘 =====
   const handleDigit = (digit: string) => {
     if (isAnswered) return
+    // 小数点只能有一个
+    if (digit === '.' && inputValue.includes('.')) return
     const next = inputValue + digit
     if (next.length > 6) return
     applyValue(next)
@@ -147,7 +156,7 @@ export function BattlePracticePanel({
     feedbackText = '✓ 正确'
     feedbackClass = `${styles.feedback} ${styles.show} ${styles.correct}`
   } else if (answerStatus === 'wrong') {
-    feedbackText = `✗ 错误 +${BATTLE_WRONG_PENALTY}秒 罚时`
+    feedbackText = `✗ 错误 +${BATTLE_WRONG_PENALTY}秒 罚时（正确答案：${formatCorrectAnswer(question)}）`
     feedbackClass = `${styles.feedback} ${styles.show} ${styles.wrong}`
   }
 
@@ -156,14 +165,23 @@ export function BattlePracticePanel({
     answerStatus === 'correct' ? styles.inputCorrect : ''
   } ${answerStatus === 'wrong' ? styles.inputWrong : ''}`
 
-  // 题目表达式与结果：正向给数求结果（12² = ?），逆向给结果求数（?² = 144）
-  const reversed = question.reversed === true
+  // 题目表达式与结果：正向给数求结果（1/7 = ?%），逆向给结果求数（14.3% = 1/?）
   const questionExpr =
     question.op === 'square' ? (
       <span className={styles.num}>
         {reversed ? '?' : question.a}
         <sup className={styles.squareExp}>2</sup>
       </span>
+    ) : question.op === 'pct' ? (
+      reversed ? (
+        <PercentNumber className={styles.num}>{question.b}</PercentNumber>
+      ) : (
+        <Fraction
+          className={styles.num}
+          numerator={question.a}
+          denominator={question.b}
+        />
+      )
     ) : reversed ? (
       <>
         <span className={styles.num}>?</span>
@@ -179,8 +197,16 @@ export function BattlePracticePanel({
     )
   const questionResult = reversed ? (
     <span className={styles.num}>
-      {question.op === 'square' ? question.b : question.a * question.b}
+      {question.op === 'square' ? (
+        question.b
+      ) : question.op === 'pct' ? (
+        <Fraction numerator={1} denominator="?" />
+      ) : (
+        question.a * question.b
+      )}
     </span>
+  ) : question.op === 'pct' ? (
+    <PercentNumber className={styles.num}>?</PercentNumber>
   ) : (
     <span className={styles.num}>?</span>
   )
@@ -261,7 +287,7 @@ export function BattlePracticePanel({
       <div className={styles.answerRow}>
         <input
           ref={inputRef}
-          type="number"
+          type={needDecimal ? 'text' : 'number'}
           className={inputClass}
           value={inputValue}
           onChange={handleInputChange}
@@ -269,7 +295,7 @@ export function BattlePracticePanel({
           placeholder={isTouch ? '点下方键盘输入' : '输入答案'}
           autoComplete="off"
           disabled={isAnswered}
-          inputMode={isTouch ? 'none' : undefined}
+          inputMode={isTouch ? 'none' : needDecimal ? 'decimal' : undefined}
           readOnly={isTouch}
         />
       </div>
@@ -283,6 +309,7 @@ export function BattlePracticePanel({
           onClear={handleClear}
           onConfirm={handleSubmit}
           confirmDisabled={isAnswered}
+          showDecimal={needDecimal}
         />
       )}
 

@@ -8,7 +8,39 @@ const OPERATION_SYMBOLS: Record<Operation, string> = {
   div: '÷',
   square: '²',
   mul19: '×',
+  pct: '%',
 }
+
+/**
+ * 百分数互化表（《常见百分化分》）
+ *
+ * 与前端 src/utils/questionGenerator.ts 保持一致：
+ * 1/2 ~ 1/20 共 18 个常用互化，原表不含 1/15，故不收录。
+ */
+const PERCENT_CONVERSIONS: Array<{ den: number; pct: number }> = [
+  // 一、一半一半再一半
+  { den: 2, pct: 50 },
+  { den: 4, pct: 25 },
+  { den: 8, pct: 12.5 },
+  { den: 16, pct: 6.25 },
+  { den: 3, pct: 33.3 },
+  { den: 6, pct: 16.7 },
+  { den: 12, pct: 8.3 },
+  { den: 5, pct: 20 },
+  { den: 10, pct: 10 },
+  { den: 20, pct: 5 },
+  // 二、相互颠倒（7,14）（9,11）（6,16）
+  { den: 7, pct: 14.3 },
+  { den: 14, pct: 7.1 },
+  { den: 11, pct: 9.1 },
+  { den: 9, pct: 11.1 },
+  // 三、5.963（等差数列）
+  { den: 17, pct: 5.9 },
+  { den: 18, pct: 5.6 },
+  { den: 19, pct: 5.3 },
+  // 四、1/8 → 1/13（加和为 20）中未与前文重复的
+  { den: 13, pct: 7.7 },
+]
 
 /** 生成 [min, max] 范围内的随机整数 */
 function randInt(min: number, max: number): number {
@@ -87,6 +119,16 @@ function generateOne(config: BattleConfig): Question {
       b = y
       answer = x * y
       break
+    }
+    case 'pct': {
+      // 百分数：从《常见百分化分》表中等概率抽一个互化，与难度无关
+      const { den, pct } = PERCENT_CONVERSIONS[randInt(0, PERCENT_CONVERSIONS.length - 1)]
+      if (isReverseQuestion(config.direction)) {
+        // 逆向：14.3% = 1/?，求分母。a 为答案（分母），b 为展示的百分数值
+        return { a: den, b: pct, op, symbol: '%', answer: den, reversed: true }
+      }
+      // 正向：1/7 = ?%，答百分数值（可能是小数，如 14.3）
+      return { a: 1, b: den, op, symbol: '/', answer: pct }
     }
   }
 

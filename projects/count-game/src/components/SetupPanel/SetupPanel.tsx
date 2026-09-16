@@ -4,6 +4,7 @@ import {
   OPERATION_LIST,
   getDifficultyOptions,
   shouldShowDifficulty,
+  hasDirection,
   DIRECTION_OPTIONS,
   COUNT_OPTIONS,
   TIME_OPTIONS,
@@ -197,6 +198,12 @@ export function SetupPanel({ config, onConfigChange, onStart, onShowHistory, onS
       {config.operations.includes('square') && (
         <p className={styles.opNote}>平方数固定练 11 ~ 30（20 个底数，一组练习内不重复）</p>
       )}
+      {config.operations.includes('pct') && (
+        <p className={styles.opNote}>
+          百分数练《常见百分化分》1/2 ~ 1/20 共 18 个互化（不含 1/15）：
+          正向答百分数，逆向答分母
+        </p>
+      )}
 
       {/* 难度选择（文案随所选运算变化，大九九按基数范围描述；
           平方数固定 11~30 与难度无关，只选平方数时整块隐藏） */}
@@ -223,8 +230,8 @@ export function SetupPanel({ config, onConfigChange, onStart, onShowHistory, onS
         </>
       )}
 
-      {/* 出题方向（仅平方数 / 大九九模块生效） */}
-      {(config.operations.includes('square') || config.operations.includes('mul19')) && (
+      {/* 出题方向（仅平方数 / 大九九 / 百分数模块生效） */}
+      {hasDirection(config.operations) && (
         <>
           <div className={styles.sectionLabel}>
             出题方向

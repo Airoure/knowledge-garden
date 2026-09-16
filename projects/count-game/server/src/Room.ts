@@ -245,7 +245,8 @@ export class Room {
     const question = this.questions[player.currentIndex]
     if (!question) return null
 
-    const correct = answer === question.answer
+    // 百分数正向题答案带小数，用容差比较吸收浮点误差（整数题等价于严格相等）
+    const correct = Math.abs(answer - question.answer) < 0.005
 
     if (correct) {
       player.correctCount++

@@ -39,7 +39,7 @@ export interface ConfigPreset {
 }
 
 const GAME_MODES: GameMode[] = ['fixed', 'endless', 'battle']
-const OPERATIONS: Operation[] = ['add', 'sub', 'mul', 'div', 'square', 'mul19']
+const OPERATIONS: Operation[] = ['add', 'sub', 'mul', 'div', 'square', 'mul19', 'pct']
 const DIFFICULTIES: Difficulty[] = ['easy', 'hard']
 const DIRECTIONS: QuestionDirection[] = ['forward', 'reverse', 'mixed']
 
@@ -51,6 +51,7 @@ const OP_SHORT_LABEL: Record<Operation, string> = {
   div: '除',
   square: '平方',
   mul19: '九九',
+  pct: '百分',
 }
 
 const DIRECTION_LABEL: Record<QuestionDirection, string> = {
@@ -179,7 +180,11 @@ export function describeConfig(config: PracticeConfig): string {
   if (shouldShowDifficulty(config.operations)) {
     parts.push(config.difficulty === 'easy' ? '入门' : '进阶')
   }
-  if (config.operations.includes('square') || config.operations.includes('mul19')) {
+  if (
+    config.operations.includes('square') ||
+    config.operations.includes('mul19') ||
+    config.operations.includes('pct')
+  ) {
     parts.push(DIRECTION_LABEL[config.direction])
   }
 

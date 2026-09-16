@@ -10,6 +10,7 @@ import {
   generateQuestions,
   generateSingleQuestion,
   buildPracticeResult,
+  isAnswerMatch,
 } from '@/utils/questionGenerator'
 import { useTimer } from './useTimer'
 import { useCountdown } from './useCountdown'
@@ -101,7 +102,8 @@ export function usePractice() {
     (userAnswer: number): boolean => {
       if (!currentQuestion || isAnswered) return false
 
-      const isCorrect = userAnswer === currentQuestion.answer
+      // 百分数正向题答案带小数，统一用容差比较（整数题等价于严格相等）
+      const isCorrect = isAnswerMatch(userAnswer, currentQuestion.answer)
       if (isCorrect) {
         setCorrectCount((c) => c + 1)
         correctCountRef.current += 1

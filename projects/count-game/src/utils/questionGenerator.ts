@@ -19,6 +19,7 @@ export const OPERATION_META: Record<Operation, OperationMeta> = {
   div: { op: 'div', symbol: '÷', label: '除法' },
   square: { op: 'square', symbol: 'n²', label: '平方数' },
   mul19: { op: 'mul19', symbol: '九九', label: '大九九' },
+  pct: { op: 'pct', symbol: '%', label: '百分数' },
 }
 
 /** 运算选项（按固定顺序） */
@@ -29,6 +30,38 @@ export const OPERATION_LIST: OperationMeta[] = [
   OPERATION_META.div,
   OPERATION_META.square,
   OPERATION_META.mul19,
+  OPERATION_META.pct,
+]
+
+/**
+ * 百分数互化表（《常见百分化分》）
+ *
+ * 1/2 ~ 1/20 共 18 个常用互化，按原表分组排列；原表不含 1/15，故不收录。
+ * pct 为需要输入的百分数值（一位小数或精确值）。
+ */
+export const PERCENT_CONVERSIONS: Array<{ den: number; pct: number }> = [
+  // 一、一半一半再一半
+  { den: 2, pct: 50 },
+  { den: 4, pct: 25 },
+  { den: 8, pct: 12.5 },
+  { den: 16, pct: 6.25 },
+  { den: 3, pct: 33.3 },
+  { den: 6, pct: 16.7 },
+  { den: 12, pct: 8.3 },
+  { den: 5, pct: 20 },
+  { den: 10, pct: 10 },
+  { den: 20, pct: 5 },
+  // 二、相互颠倒（7,14）（9,11）（6,16）
+  { den: 7, pct: 14.3 },
+  { den: 14, pct: 7.1 },
+  { den: 11, pct: 9.1 },
+  { den: 9, pct: 11.1 },
+  // 三、5.963（等差数列）
+  { den: 17, pct: 5.9 },
+  { den: 18, pct: 5.6 },
+  { den: 19, pct: 5.3 },
+  // 四、1/8 → 1/13（加和为 20）中未与前文重复的
+  { den: 13, pct: 7.7 },
 ]
 
 /** 难度元数据 */
@@ -97,11 +130,21 @@ export function getDifficultyOptions(operations: Operation[]): DifficultyMeta[] 
 /**
  * 是否需要展示「难度等级」选择
  *
- * 平方数已固定考 11~30（与难度无关），只选平方数时该选项没有意义，直接隐藏；
+ * 平方数已固定考 11~30、百分数固定考互化表（均与难度无关），
+ * 只选这类题型时该选项没有意义，直接隐藏；
  * 与四则 / 大九九混合选择时仍需展示（难度对它们依然生效）。
  */
 export function shouldShowDifficulty(operations: Operation[]): boolean {
-  return operations.some((op) => op !== 'square')
+  return operations.some((op) => op !== 'square' && op !== 'pct')
+}
+
+/**
+ * 是否需要展示「出题方向」选择
+ *
+ * 仅支持正逆向出题的模块（平方数 / 大九九 / 百分数）参与时展示
+ */
+export function hasDirection(operations: Operation[]): boolean {
+  return operations.some((op) => op === 'square' || op === 'mul19' || op === 'pct')
 }
 
 /** 固定模式题量选项 */
@@ -213,6 +256,16 @@ function generateOne(config: PracticeConfig): Question {
       answer = x * y
       break
     }
+    case 'pct': {
+      // 百分数：从《常见百分化分》表中等概率抽一个互化，与难度无关
+      const { den, pct } = PERCENT_CONVERSIONS[randInt(0, PERCENT_CONVERSIONS.length - 1)]
+      if (isReverseQuestion(config.direction)) {
+        // 逆向：14.3% = 1/?，求分母。a 为答案（分母），b 为展示的百分数值
+        return { a: den, b: pct, op, symbol: '%', answer: den, reversed: true }
+      }
+      // 正向：1/7 = ?%，答百分数值（可能是小数，如 14.3）
+      return { a: 1, b: den, op, symbol: '/', answer: pct }
+    }
   }
 
   // 平方数题目符号为 ²，大九九用普通乘号；
@@ -228,6 +281,16 @@ function generateOne(config: PracticeConfig): Question {
 function isSameQuestion(q1: Question, q2: Question | null): boolean {
   if (!q2) return false
   return q1.a === q2.a && q1.b === q2.b && q1.op === q2.op
+}
+
+/**
+ * 判定用户答案是否正确
+ *
+ * 百分数正向题的答案带小数（如 14.3、6.25），用极小容差吸收浮点误差；
+ * 对整数答案等价于严格相等。
+ */
+export function isAnswerMatch(userAnswer: number, answer: number): boolean {
+  return Math.abs(userAnswer - answer) < 0.005
 }
 
 /**

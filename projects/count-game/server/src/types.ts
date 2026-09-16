@@ -1,7 +1,7 @@
 // ===== 共享类型定义 =====
 
-/** 运算类型（square：平方数；mul19：大九九 11~19 互乘） */
-export type Operation = 'add' | 'sub' | 'mul' | 'div' | 'square' | 'mul19'
+/** 运算类型（square：平方数；mul19：大九九 11~19 互乘；pct：分数 ↔ 百分数互化） */
+export type Operation = 'add' | 'sub' | 'mul' | 'div' | 'square' | 'mul19' | 'pct'
 
 /** 难度等级 */
 export type Difficulty = 'easy' | 'hard'
@@ -20,10 +20,11 @@ export interface Question {
   symbol: string
   answer: number
   /**
-   * 逆向题标记（仅 square / mul19 会出现）
+   * 逆向题标记（仅 square / mul19 / pct 会出现）
    *
    * 逆向时 a 为待求值（即答案），b 为题目中展示的已知数：
-   * square：?² = b，answer = a；mul19：? × b = a × b，answer = a
+   * square：?² = b，answer = a；mul19：? × b = a × b，answer = a；
+   * pct：b% = 1/?，answer = a（分母）
    */
   reversed?: boolean
 }
@@ -32,7 +33,7 @@ export interface Question {
 export interface BattleConfig {
   operations: Operation[]
   difficulty: Difficulty
-  /** 出题方向（仅平方数 / 大九九生效） */
+  /** 出题方向（仅平方数 / 大九九 / 百分数生效） */
   direction: QuestionDirection
   totalCount: number
 }
