@@ -69,9 +69,40 @@
     renderQuiz();
   }
 
+  /* 下一题按钮的默认内容（最后一题时变为查看成绩） */
+  const nextbarHtml = () =>
+    `<button class="btn primary" data-act="next">${quiz.idx + 1 >= quiz.list.length ? '查看成绩 →' : '下一题 →'}</button>`;
+
+  /* 每题计时器：顶部用时 + 模考配速 */
+  function startQTimer() {
+    const isExam = quiz.cfg.mode === 'exam';
+    clearInterval(quiz.tInt);
+    quiz.tInt = setInterval(() => {
+      const el = (performance.now() - quiz.qStart) / 1000;
+      const t = document.getElementById('tcur');
+      if (t) t.textContent = el.toFixed(1) + 's';
+      if (isExam) {
+        const cum = (performance.now() - quiz.examStart) / 1000;
+        const c = document.getElementById('tcum');
+        const pace = document.getElementById('tpace');
+        const mm = Math.floor(cum / 60), ss = Math.floor(cum % 60);
+        if (c) c.textContent = `⏱ ${mm}:${String(ss).padStart(2, '0')}`;
+        if (pace) {
+          const expect = (quiz.idx + el / 90) * 50;      // 言语理解约 50 秒/题
+          const ratio = cum / Math.max(expect, 1);
+          pace.textContent = ratio < .9 ? '配速领先' : ratio < 1.2 ? '配速正常' : '配速落后';
+          pace.className = 'chip ' + (ratio < .9 ? 'pace-ok' : ratio < 1.2 ? 'pace-warn' : 'pace-bad');
+        }
+      }
+    }, 100);
+  }
+
   function renderQuiz() {
     const q = quiz.list[quiz.idx];
     quiz.answered = false;
+    quiz.retried = false;
+    quiz.lastWrong = false;
+    quiz.lastPick = -1;
     clearInterval(quiz.tInt);
     clearTimeout(quiz.autoT);
     quiz.qStart = performance.now();
@@ -85,7 +116,7 @@
       ? `<span class="chip timer" id="tcum">⏱ 0:00</span><span class="chip" id="tpace">配速 —</span>`
       : '';
     const autoChip = (!isExam)
-      ? `<button class="chip btnlike" data-act="toggle-auto" style="cursor:pointer">自动下一题：${store.settings.autoNext ? '开' : '关'}</button>`
+      ? `<button class="chip btnlike" data-act="toggle-auto" style="cursor:pointer">答对自动下一题：${store.settings.autoNext ? '开' : '关'}</button>`
       : '';
 
     view.innerHTML = `
@@ -110,58 +141,45 @@
         </div>
         <div id="afeed"></div>
       </div>
-      <div class="nextbar" id="nextbar" hidden>
-        <button class="btn primary" data-act="next">${quiz.idx + 1 >= quiz.list.length ? '查看成绩 →' : '下一题 →'}</button>
-      </div>
-      <div class="kbd-hint">键盘：<kbd>1</kbd>–<kbd>4</kbd> / <kbd>A</kbd>–<kbd>D</kbd> 选择 · 答题后 <kbd>Enter</kbd> 下一题</div>
+      <div class="nextbar" id="nextbar" hidden>${nextbarHtml()}</div>
+      <div class="kbd-hint">键盘：<kbd>1</kbd>–<kbd>4</kbd> / <kbd>A</kbd>–<kbd>D</kbd> 选择 · 答题后 <kbd>Enter</kbd> 下一题${isExam ? '' : ' · 答错后 <kbd>R</kbd> 再试一次'}</div>
     `;
 
-    quiz.tInt = setInterval(() => {
-      const el = (performance.now() - quiz.qStart) / 1000;
-      const t = document.getElementById('tcur');
-      if (t) t.textContent = el.toFixed(1) + 's';
-      if (isExam) {
-        const cum = (performance.now() - quiz.examStart) / 1000;
-        const c = document.getElementById('tcum');
-        const pace = document.getElementById('tpace');
-        const mm = Math.floor(cum / 60), ss = Math.floor(cum % 60);
-        if (c) c.textContent = `⏱ ${mm}:${String(ss).padStart(2, '0')}`;
-        if (pace) {
-          const expect = (quiz.idx + el / 90) * 50;      // 言语理解约 50 秒/题
-          const ratio = cum / Math.max(expect, 1);
-          pace.textContent = ratio < .9 ? '配速领先' : ratio < 1.2 ? '配速正常' : '配速落后';
-          pace.className = 'chip ' + (ratio < .9 ? 'pace-ok' : ratio < 1.2 ? 'pace-warn' : 'pace-bad');
-        }
-      }
-    }, 100);
+    startQTimer();
   }
 
   function choose(i) {
     if (!quiz || quiz.answered) return;
     quiz.answered = true;
+    quiz.lastPick = i;
     clearInterval(quiz.tInt);
     const q = quiz.list[quiz.idx];
     const ok = i === q.ansIdx;
     const dur = (performance.now() - quiz.qStart) / 1000;
-    quiz.answers.push({ q, pick: i, ok, dur });
-    quiz.streak = ok ? quiz.streak + 1 : 0;
+    quiz.lastWrong = !ok;
 
-    if (quiz.cfg.courseId) {
-      const st = chapterStats(quiz.cfg.courseId);
-      st.started = true; st.total++;
-      if (ok) st.right++;
-      save();
-    }
-    if (!ok) {
-      store.wrong.push({
-        at: Date.now(), typeId: q.typeId, typeName: q.typeName,
-        stem: stripHtml(q.stem).slice(0, 160),
-        correct: String(q.options[q.ansIdx].text ?? '见解析'),
-        yours: String(q.options[i].text ?? '—'),
-        analysis: q.analysis,
-      });
-      if (store.wrong.length > 60) store.wrong = store.wrong.slice(-60);
-      save();
+    /* 成绩与错题本只记第一次作答；重试仅用于巩固，不改写记录 */
+    if (!quiz.retried) {
+      quiz.answers.push({ q, pick: i, ok, dur });
+      quiz.streak = ok ? quiz.streak + 1 : 0;
+
+      if (quiz.cfg.courseId) {
+        const st = chapterStats(quiz.cfg.courseId);
+        st.started = true; st.total++;
+        if (ok) st.right++;
+        save();
+      }
+      if (!ok) {
+        store.wrong.push({
+          at: Date.now(), typeId: q.typeId, typeName: q.typeName,
+          stem: stripHtml(q.stem).slice(0, 160),
+          correct: String(q.options[q.ansIdx].text ?? '见解析'),
+          yours: String(q.options[i].text ?? '—'),
+          analysis: q.analysis,
+        });
+        if (store.wrong.length > 60) store.wrong = store.wrong.slice(-60);
+        save();
+      }
     }
 
     const card = document.getElementById('qcard');
@@ -174,16 +192,23 @@
       else b.classList.add('dim');
     });
     const durTxt = dur < 20 ? `用时 ${dur.toFixed(1)} 秒` : dur > 50 ? `用时 ${fmtSec(dur)}（言语理解建议 50 秒/题内解决，纠结就先标记跳过）` : `用时 ${dur.toFixed(1)} 秒`;
+    const retried = quiz.retried;
     document.getElementById('afeed').innerHTML = `
       <div class="analysis">
-        <div class="verdict ${ok ? 'ok' : 'no'}">${ok ? '✓ 答对了' : '✗ 答错了'}
+        <div class="verdict ${ok ? 'ok' : 'no'}">${ok ? (retried ? '✓ 重试答对' : '✓ 答对了') : (retried ? '✗ 还是错了' : '✗ 答错了')}
           <span class="used">${durTxt}</span></div>
         <div class="body">${q.analysis}</div>
       </div>`;
-    document.getElementById('nextbar').hidden = false;
+    const nb = document.getElementById('nextbar');
+    /* 练习模式答错：给出「再试一次」，重新选择后才进入下一题 */
+    nb.innerHTML = ok || quiz.cfg.mode !== 'practice'
+      ? nextbarHtml()
+      : `<button class="btn" data-act="retry">🔄 再试一次</button>${nextbarHtml()}`;
+    nb.hidden = false;
 
-    if (quiz.cfg.mode === 'practice' && store.settings.autoNext) {
-      quiz.autoT = setTimeout(next, ok ? 1200 : 3600);
+    /* 答对可自动进入下一题；答错则停下，等用户重试或手动继续 */
+    if (quiz.cfg.mode === 'practice' && store.settings.autoNext && ok) {
+      quiz.autoT = setTimeout(next, 1200);
     }
   }
 
@@ -192,6 +217,28 @@
     quiz.idx++;
     if (quiz.idx >= quiz.list.length) finishQuiz();
     else renderQuiz();
+  }
+
+  /* 答错后重试：还原本题作答状态，重新选择（仅练习模式） */
+  function retryQuestion() {
+    if (!quiz || quiz.finished || quiz.cfg.mode !== 'practice') return;
+    if (!quiz.answered || !quiz.lastWrong) return;
+    clearTimeout(quiz.autoT);
+    quiz.answered = false;
+    quiz.retried = true;
+    quiz.qStart = performance.now();
+    const card = document.getElementById('qcard');
+    card.classList.remove('answered');
+    card.querySelectorAll('.opt').forEach((b) => {
+      b.disabled = false;
+      b.classList.remove('right', 'wrong', 'dim');
+      if (Number(b.dataset.i) === quiz.lastPick) b.classList.add('tried');
+    });
+    document.getElementById('afeed').innerHTML = '';
+    const nb = document.getElementById('nextbar');
+    nb.hidden = true;
+    nb.innerHTML = nextbarHtml();
+    startQTimer();
   }
 
   function finishQuiz() {
@@ -557,7 +604,7 @@
     if (act === 'cards-tab') { cardsTab = Number(t.dataset.t); renderCards(); return; }
     if (act === 'toggle-auto') {
       store.settings.autoNext = !store.settings.autoNext; save();
-      t.textContent = `自动下一题：${store.settings.autoNext ? '开' : '关'}`;
+      t.textContent = `答对自动下一题：${store.settings.autoNext ? '开' : '关'}`;
       return;
     }
     if (act === 'quit') {
@@ -574,6 +621,7 @@
 
     if (!quiz || quiz.finished) return;
     if (act === 'next') { next(); return; }
+    if (act === 'retry') { retryQuestion(); return; }
   });
 
   document.addEventListener('click', (ev) => {
@@ -610,6 +658,8 @@
       if (i >= 0 && i < q.options.length) { ev.preventDefault(); choose(i); }
     } else if (ev.key === 'Enter' || ev.key.toLowerCase() === 'n') {
       ev.preventDefault(); next();
+    } else if (ev.key.toLowerCase() === 'r') {
+      ev.preventDefault(); retryQuestion();
     }
   });
 
